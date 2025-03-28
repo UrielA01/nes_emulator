@@ -5,3 +5,12 @@ version = 4
 [[package]]
 name = "nes_emulator"
 version = "0.1.0"
+dependencies = [
+ "once_cell",
+]
+
+[[package]]
+name = "once_cell"
+version = "1.21.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2806eaa3524762875e21c3dcd057bc4b7bfa01ce4da8d46be1cd43649e1cc6b"
