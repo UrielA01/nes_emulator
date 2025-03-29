@@ -1,4 +1,5 @@
 use crate::opcodes;
+use bitflags::bitflags;
 
 /// # Status Register (P) http://wiki.nesdev.com/w/index.php/Status_flags
 ///
@@ -29,6 +30,20 @@ pub enum AddressingMode {
     NoneAddressing,
 }
 
+bitflags! {
+    #[derive(Copy, Clone, PartialEq, Eq, Debug, Hash)]
+    pub struct StatusFlags: u8 {
+        const CARRY     = 0b0000_0001;
+        const ZERO      = 0b0000_0010;
+        const INTERRUPT = 0b0000_0100;
+        const DECIMAL   = 0b0000_1000;
+        const BREAK     = 0b0001_0000;
+        const UNUSED    = 0b0010_0000;
+        const OVERFLOW  = 0b0100_0000;
+        const NEGATIVE  = 0b1000_0000;
+    }
+}
+
 trait Mem {
     fn mem_read(&self, addr: u16) -> u8;
     fn mem_write(&mut self, addr: u16, data: u8);
@@ -49,7 +64,7 @@ pub struct CPU {
     pub register_a: u8,
     pub register_x: u8,
     pub register_y: u8,
-    pub status: u8,
+    pub status: StatusFlags,
     pub program_counter: u16,
     memory: [u8; 0xFFFF],
 }
@@ -70,7 +85,7 @@ impl CPU {
             register_a: 0,
             register_x: 0,
             register_y: 0,
-            status: 0,
+            status: StatusFlags::UNUSED | StatusFlags::BREAK,
             program_counter: 0,
             memory: [0; 0xFFFF],
         }
@@ -99,23 +114,30 @@ impl CPU {
         self.mem_write(addr, self.register_a);
     }
 
+    fn adc(&mut self, mode: &AddressingMode) {
+        let addr = self.get_operand_address(mode);
+        let value = self.mem_read(addr);
+
+        let result = (self.register_a as u16)
+            + (value as u16)
+            + ((self.status & StatusFlags::CARRY).bits() as u16);
+        self.status.set(StatusFlags::CARRY, result > 0xff);
+
+        let overflow = ((self.register_a ^ result as u8) & (value ^ result as u8) & 0x80) != 0;
+        self.status.set(StatusFlags::OVERFLOW, overflow);
+
+        self.register_a = result as u8;
+    }
+
     fn jmp(&mut self, mode: &AddressingMode) {
         let mem_address = self.get_operand_address(mode);
         self.program_counter = mem_address;
     }
 
     fn update_zero_and_negative_flags(&mut self, result: u8) {
-        if result == 0 {
-            self.status = self.status | 0b0000_0010;
-        } else {
-            self.status = self.status & 0b1111_1101;
-        }
-
-        if result & 0b1000_0000 != 0 {
-            self.status = self.status | 0b1000_0000;
-        } else {
-            self.status = self.status & 0b0111_1111;
-        }
+        self.status.set(StatusFlags::ZERO, result == 0);
+        self.status
+            .set(StatusFlags::NEGATIVE, result & 0b1000_0000 != 0);
     }
 
     fn get_operand_address(&mut self, mode: &AddressingMode) -> u16 {
@@ -188,7 +210,7 @@ impl CPU {
     pub fn reset(&mut self) {
         self.register_a = 0;
         self.register_x = 0;
-        self.status = 0;
+        self.status = StatusFlags::UNUSED | StatusFlags::BREAK;
 
         self.program_counter = self.mem_read_u16(0xFFFC);
     }
@@ -219,6 +241,7 @@ impl CPU {
 
             match code {
                 0xA9 | 0xA5 | 0xAD | 0xb5 | 0xbd | 0xb9 | 0xa1 | 0xb1 => self.lda(&opcode.mode),
+                0x69 | 0x65 | 0x75 | 0x6d | 0x7d | 0x79 | 0x61 | 0x71 => self.adc(&opcode.mode),
 
                 0x85 | 0x95 | 0x8d | 0x9d | 0x99 | 0x81 | 0x91 => self.sta(&opcode.mode),
 
@@ -248,15 +271,40 @@ mod test {
         let mut cpu = CPU::new();
         cpu.load_and_run(vec![0xa9, 0x05, 0x00]);
         assert_eq!(cpu.register_a, 5);
-        assert!(cpu.status & 0b0000_0010 == 0);
-        assert!(cpu.status & 0b1000_0000 == 0);
+        assert!(cpu.status.bits() & StatusFlags::ZERO.bits() == 0);
+        assert!(cpu.status.bits() & StatusFlags::NEGATIVE.bits() == 0);
     }
 
     #[test]
     fn test_0xa9_lda_zero_flag() {
         let mut cpu = CPU::new();
         cpu.load_and_run(vec![0xa9, 0x00, 0x00]);
-        assert!(cpu.status & 0b0000_0010 == 0b10);
+        assert!(cpu.status.bits() & StatusFlags::ZERO.bits() == StatusFlags::ZERO.bits());
+    }
+
+    #[test]
+    fn test_0x69_adc_immediate() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0x69, 0x05, 0x00]);
+        assert_eq!(cpu.register_a, 5);
+        assert!((cpu.status & StatusFlags::CARRY).is_empty());
+        assert!((cpu.status & StatusFlags::OVERFLOW).is_empty());
+    }
+
+    #[test]
+    fn test_0x69_adc_immediate_with_carry() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0xa9, 0xFA, 0x69, 0x0A, 0x00]);
+        assert_eq!(cpu.register_a, 4);
+        assert!((cpu.status & StatusFlags::CARRY).eq(&StatusFlags::CARRY));
+    }
+
+    #[test]
+    fn test_0x69_adc_immediate_with_overflow() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0xa9, 0x64, 0x69, 0x32, 0x00]);
+        assert_eq!(cpu.register_a, 150);
+        assert!((cpu.status & StatusFlags::OVERFLOW).eq(&StatusFlags::OVERFLOW));
     }
 
     #[test]
