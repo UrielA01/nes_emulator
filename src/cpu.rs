@@ -99,6 +99,11 @@ impl CPU {
         self.mem_write(addr, self.register_a);
     }
 
+    fn jmp(&mut self, mode: &AddressingMode) {
+        let mem_address = self.get_operand_address(mode);
+        self.program_counter = mem_address;
+    }
+
     fn update_zero_and_negative_flags(&mut self, result: u8) {
         if result == 0 {
             self.status = self.status | 0b0000_0010;
@@ -144,11 +149,15 @@ impl CPU {
             }
 
             AddressingMode::Indirect => {
-                let base = self.mem_read(self.program_counter);
+                let addr = self.mem_read_u16(self.program_counter);
 
-                let ptr: u8 = base as u8;
-                let lo = self.mem_read(ptr as u16);
-                let hi = self.mem_read(ptr.wrapping_add(1) as u16);
+                let lo = self.mem_read(addr);
+                let hi = self.mem_read(if addr & 0x00FF == 0x00FF {
+                    addr & 0xFF00
+                } else {
+                    addr + 1
+                });
+
                 (hi as u16) << 8 | (lo as u16)
             }
 
@@ -216,6 +225,7 @@ impl CPU {
                 0xAA => self.tax(),
 
                 0xe8 => self.inx(),
+                0x4c | 0x6c => self.jmp(&opcode.mode),
 
                 0x00 => return,
 
@@ -281,5 +291,26 @@ mod test {
         cpu.load_and_run(vec![0xa5, 0x10, 0x00]);
 
         assert_eq!(cpu.register_a, 0x55);
+    }
+
+    #[test]
+    fn test_jmp_absolute() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0x4C, 0x34, 0x12, 0x00]);
+
+        assert_eq!(cpu.program_counter - 1, 0x1234);
+    }
+
+    #[test]
+    fn test_jmp_indirect() {
+        let mut cpu = CPU::new();
+
+        cpu.mem_write_u16(0x2000, 0x1234);
+
+        cpu.load_and_run(vec![0x6C, 0x00, 0x20, 0x00]);
+
+        println!("pos: {}", cpu.program_counter);
+
+        assert_eq!(cpu.program_counter - 1, 0x1234);
     }
 }
