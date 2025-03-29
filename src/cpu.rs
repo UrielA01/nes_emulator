@@ -1,5 +1,18 @@
 use crate::opcodes;
 
+/// # Status Register (P) http://wiki.nesdev.com/w/index.php/Status_flags
+///
+///  7 6 5 4 3 2 1 0
+///  N V _ B D I Z C
+///  | |   | | | | +--- Carry Flag
+///  | |   | | | +----- Zero Flag
+///  | |   | | +------- Interrupt Disable
+///  | |   | +--------- Decimal Mode (not used on NES)
+///  | |   +----------- Break Command
+///  | +--------------- Overflow Flag
+///  +----------------- Negative Flag
+///
+
 #[derive(Debug)]
 #[allow(non_camel_case_types)]
 pub enum AddressingMode {
@@ -10,9 +23,26 @@ pub enum AddressingMode {
     Absolute,
     Absolute_X,
     Absolute_Y,
+    Indirect,
     Indirect_X,
     Indirect_Y,
     NoneAddressing,
+}
+
+trait Mem {
+    fn mem_read(&self, addr: u16) -> u8;
+    fn mem_write(&mut self, addr: u16, data: u8);
+    fn mem_read_u16(&mut self, position: u16) -> u16 {
+        let low_bit = self.mem_read(position) as u16;
+        let high_bit = self.mem_read(position + 1) as u16;
+        (high_bit << 8) | (low_bit as u16)
+    }
+    fn mem_write_u16(&mut self, pos: u16, data: u16) {
+        let high_bit = (data >> 8) as u8;
+        let low_bit = (data & 0xff) as u8;
+        self.mem_write(pos, low_bit);
+        self.mem_write(pos + 1, high_bit);
+    }
 }
 
 pub struct CPU {
@@ -22,6 +52,16 @@ pub struct CPU {
     pub status: u8,
     pub program_counter: u16,
     memory: [u8; 0xFFFF],
+}
+
+impl Mem for CPU {
+    fn mem_read(&self, addr: u16) -> u8 {
+        self.memory[addr as usize]
+    }
+
+    fn mem_write(&mut self, addr: u16, data: u8) {
+        self.memory[addr as usize] = data;
+    }
 }
 
 impl CPU {
@@ -34,49 +74,6 @@ impl CPU {
             program_counter: 0,
             memory: [0; 0xFFFF],
         }
-    }
-
-    fn mem_read(&self, addr: u16) -> u8 {
-        self.memory[addr as usize]
-    }
-
-    fn mem_write(&mut self, addr: u16, data: u8) {
-        self.memory[addr as usize] = data;
-    }
-
-    fn mem_read_u16(&mut self, position: u16) -> u16 {
-        let low_bit = self.mem_read(position) as u16;
-        let high_bit = self.mem_read(position + 1) as u16;
-        (high_bit << 8) | (low_bit as u16)
-    }
-
-    fn mem_write_u16(&mut self, pos: u16, data: u16) {
-        let high_bit = (data >> 8) as u8;
-        let low_bit = (data & 0xff) as u8;
-        self.mem_write(pos, low_bit);
-        self.mem_write(pos + 1, high_bit);
-    }
-
-    pub fn reset(&mut self) {
-        self.register_a = 0;
-        self.register_x = 0;
-        self.status = 0;
-
-        self.program_counter = self.mem_read_u16(0xFFFC);
-    }
-
-    pub fn load(&mut self, program: Vec<u8>) {
-        let start_index = 0x8000;
-        let end_index = 0x8000 + program.len();
-        let program_counter_pos = 0xFFFC;
-        self.memory[start_index..(end_index)].copy_from_slice(&program);
-        self.mem_write_u16(program_counter_pos, start_index as u16);
-    }
-
-    pub fn load_and_run(&mut self, program: Vec<u8>) {
-        self.load(program);
-        self.reset();
-        self.run()
     }
 
     fn lda(&mut self, mode: &AddressingMode) {
@@ -146,6 +143,15 @@ impl CPU {
                 addr
             }
 
+            AddressingMode::Indirect => {
+                let base = self.mem_read(self.program_counter);
+
+                let ptr: u8 = base as u8;
+                let lo = self.mem_read(ptr as u16);
+                let hi = self.mem_read(ptr.wrapping_add(1) as u16);
+                (hi as u16) << 8 | (lo as u16)
+            }
+
             AddressingMode::Indirect_X => {
                 let base = self.mem_read(self.program_counter);
 
@@ -170,25 +176,42 @@ impl CPU {
         }
     }
 
+    pub fn reset(&mut self) {
+        self.register_a = 0;
+        self.register_x = 0;
+        self.status = 0;
+
+        self.program_counter = self.mem_read_u16(0xFFFC);
+    }
+
+    pub fn load(&mut self, program: Vec<u8>) {
+        let start_index = 0x8000;
+        let end_index = 0x8000 + program.len();
+        let program_counter_pos = 0xFFFC;
+        self.memory[start_index..(end_index)].copy_from_slice(&program);
+        self.mem_write_u16(program_counter_pos, start_index as u16);
+    }
+
+    pub fn load_and_run(&mut self, program: Vec<u8>) {
+        self.load(program);
+        self.reset();
+        self.run()
+    }
+
     pub fn run(&mut self) {
         loop {
             let code = self.mem_read(self.program_counter);
             self.program_counter += 1;
+            let original_program_counter = self.program_counter;
 
             let opcode = opcodes::CODES_MAP
                 .get(&code)
                 .expect(&format!("OpCode {:x} is not recognized", code));
 
             match code {
-                0xA9 | 0xA5 | 0xAD | 0xb5 | 0xbd | 0xb9 | 0xa1 | 0xb1 => {
-                    self.lda(&opcode.mode);
-                    self.program_counter += 1;
-                }
+                0xA9 | 0xA5 | 0xAD | 0xb5 | 0xbd | 0xb9 | 0xa1 | 0xb1 => self.lda(&opcode.mode),
 
-                0x85 | 0x95 | 0x8d | 0x9d | 0x99 | 0x81 | 0x91 => {
-                    self.sta(&opcode.mode);
-                    self.program_counter += 1;
-                }
+                0x85 | 0x95 | 0x8d | 0x9d | 0x99 | 0x81 | 0x91 => self.sta(&opcode.mode),
 
                 0xAA => self.tax(),
 
@@ -197,6 +220,10 @@ impl CPU {
                 0x00 => return,
 
                 _ => todo!(),
+            }
+
+            if original_program_counter == self.program_counter {
+                self.program_counter += (opcode.bytes - 1) as u16;
             }
         }
     }
