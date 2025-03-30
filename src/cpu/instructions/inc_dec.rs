@@ -95,4 +95,36 @@ mod test {
 
         assert_eq!(cpu.register_x, 1)
     }
+
+    #[test]
+    fn test_0xe8_inx() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0xe8, 0x00]);
+
+        assert_eq!(cpu.register_x, 1)
+    }
+
+    #[test]
+    fn test_0xc8_iny() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0xc8, 0x00]);
+
+        assert_eq!(cpu.register_y, 1)
+    }
+
+    #[test]
+    fn test_0x88_dey() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0xc8, 0x88, 0x00]);
+
+        assert_eq!(cpu.register_y, 0)
+    }
+
+    #[test]
+    fn test_0xca_dex() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0xe8, 0xca, 0x00]);
+
+        assert_eq!(cpu.register_x, 0)
+    }
 }
