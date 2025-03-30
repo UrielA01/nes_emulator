@@ -117,7 +117,13 @@ impl CPU {
 
                 0xc8 => self.iny(),
 
+                0x88 => self.dey(),
+
+                0xca => self.dex(),
+
                 0xe6 | 0xf6 | 0xee | 0xfe => self.inc(&opcode.mode),
+
+                0xc6 | 0xd6 | 0xce | 0xde => self.dec(&opcode.mode),
 
                 0x4c | 0x6c => self.jmp(&opcode.mode),
 
