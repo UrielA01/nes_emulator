@@ -126,6 +126,8 @@ impl CPU {
         let overflow = ((self.register_a ^ result as u8) & (value ^ result as u8) & 0x80) != 0;
         self.status.set(StatusFlags::OVERFLOW, overflow);
 
+        self.update_zero_and_negative_flags(result as u8);
+
         self.register_a = result as u8;
     }
 
