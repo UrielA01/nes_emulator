@@ -115,6 +115,10 @@ impl CPU {
 
                 0xe8 => self.inx(),
 
+                0xc8 => self.iny(),
+
+                0xe6 | 0xf6 | 0xee | 0xfe => self.inc(&opcode.mode),
+
                 0x4c | 0x6c => self.jmp(&opcode.mode),
 
                 0x29 | 0x25 | 0x35 | 0x2d | 0x3d | 0x39 | 0x21 | 0x31 => self.and(&opcode.mode),
