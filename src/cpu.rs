@@ -134,6 +134,15 @@ impl CPU {
         self.program_counter = mem_address;
     }
 
+    fn and(&mut self, mode: &AddressingMode) {
+        let addr = self.get_operand_address(mode);
+        let value = self.mem_read(addr);
+
+        let result = self.register_a & value;
+        self.register_a = result;
+        self.update_zero_and_negative_flags(result)
+    }
+
     fn update_zero_and_negative_flags(&mut self, result: u8) {
         self.status.set(StatusFlags::ZERO, result == 0);
         self.status
@@ -248,7 +257,10 @@ impl CPU {
                 0xAA => self.tax(),
 
                 0xe8 => self.inx(),
+
                 0x4c | 0x6c => self.jmp(&opcode.mode),
+
+                0x29 | 0x25 | 0x35 | 0x2d | 0x3d | 0x39 | 0x21 | 0x31 => self.and(&opcode.mode),
 
                 0x00 => return,
 
