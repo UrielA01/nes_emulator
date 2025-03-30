@@ -1,4 +1,5 @@
 mod arithmetic;
 mod bitwise;
 mod flow_control;
+mod inc_dec;
 mod load_store;
