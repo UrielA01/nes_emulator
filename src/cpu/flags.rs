@@ -44,8 +44,7 @@ impl CPU {
         self.status.set(StatusFlags::CARRY, (value & 0x01) != 0);
     }
 
-    #[allow(dead_code)]
-    fn update_carry_adc(&mut self, result: u16) {
+    pub fn update_carry_adc(&mut self, result: u16) {
         self.status.set(StatusFlags::CARRY, result > 0xFF);
     }
 
