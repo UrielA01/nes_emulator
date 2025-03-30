@@ -1,4 +1,4 @@
 mod arithmetic;
 mod bitwise;
-mod control;
+mod flow_control;
 mod load_store;
