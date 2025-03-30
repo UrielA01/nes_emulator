@@ -4,6 +4,7 @@ use super::flags::StatusFlags;
 #[allow(non_camel_case_types)]
 pub enum AddressingMode {
     Immediate,
+    Implied,
     Accumulator,
     ZeroPage,
     ZeroPage_X,
@@ -160,5 +161,37 @@ mod test {
         println!("pos: {}", cpu.program_counter);
 
         assert_eq!(cpu.program_counter - 1, 0x1234);
+    }
+
+    // Flag control
+    #[test]
+    fn test_clear_and_set_carry_flag() {
+        let mut cpu = CPU::new();
+
+        cpu.set_carry_flag();
+        assert!(cpu.status.contains(StatusFlags::CARRY));
+
+        cpu.clear_carry_flag();
+        assert!(!cpu.status.contains(StatusFlags::CARRY));
+    }
+
+    #[test]
+    fn test_clear_and_set_decimal_flag() {
+        let mut cpu = CPU::new();
+
+        cpu.set_decimal_flag();
+        assert!(cpu.status.contains(StatusFlags::DECIMAL));
+
+        cpu.clear_decimal_flag();
+        assert!(!cpu.status.contains(StatusFlags::DECIMAL));
+    }
+
+    #[test]
+    fn test_clear_overflow_flag() {
+        let mut cpu = CPU::new();
+
+        cpu.status.insert(StatusFlags::OVERFLOW);
+        cpu.clear_overflow_flag();
+        assert!(!cpu.status.contains(StatusFlags::OVERFLOW));
     }
 }

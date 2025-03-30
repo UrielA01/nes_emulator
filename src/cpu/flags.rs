@@ -57,4 +57,33 @@ impl CPU {
     fn update_carry_cmp(&mut self, register: u8, operand: u8) {
         self.status.set(StatusFlags::CARRY, register >= operand);
     }
+
+    // ---- CLEAR FLAGS ----
+    pub fn clear_carry_flag(&mut self) {
+        self.status.remove(StatusFlags::CARRY);
+    }
+
+    pub fn clear_interrupt_disable_flag(&mut self) {
+        self.status.remove(StatusFlags::INTERRUPT);
+    }
+
+    pub fn clear_decimal_flag(&mut self) {
+        self.status.remove(StatusFlags::DECIMAL);
+    }
+
+    pub fn clear_overflow_flag(&mut self) {
+        self.status.remove(StatusFlags::OVERFLOW);
+    }
+
+    // ---- SET FLAGS ----
+    pub fn set_carry_flag(&mut self) {
+        self.status.insert(StatusFlags::CARRY);
+    }
+    pub fn set_interrupt_disable_flag(&mut self) {
+        self.status.insert(StatusFlags::INTERRUPT);
+    }
+
+    pub fn set_decimal_flag(&mut self) {
+        self.status.insert(StatusFlags::DECIMAL);
+    }
 }

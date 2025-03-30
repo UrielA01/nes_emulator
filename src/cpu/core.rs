@@ -8,6 +8,8 @@ impl CPU {
         match mode {
             AddressingMode::Immediate => self.program_counter,
 
+            AddressingMode::Implied => self.program_counter,
+
             AddressingMode::ZeroPage => self.mem_read(self.program_counter) as u16,
 
             AddressingMode::Absolute => self.mem_read_u16(self.program_counter),
@@ -118,6 +120,14 @@ impl CPU {
                 0x29 | 0x25 | 0x35 | 0x2d | 0x3d | 0x39 | 0x21 | 0x31 => self.and(&opcode.mode),
 
                 0x06 | 0x16 | 0x0e | 0x1e | 0x0a => self.asl(&opcode.mode),
+
+                0x18 => self.clear_carry_flag(),
+                0xD8 => self.clear_decimal_flag(),
+                0x58 => self.clear_interrupt_disable_flag(),
+                0xB8 => self.clear_overflow_flag(),
+                0x38 => self.set_carry_flag(),
+                0xF8 => self.set_decimal_flag(),
+                0x78 => self.set_interrupt_disable_flag(),
 
                 0x00 => return,
 

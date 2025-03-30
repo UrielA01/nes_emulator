@@ -90,6 +90,15 @@ static CPU_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
         // JMP
         OpCode::new(0x4c, "JMP", 3, 3, AddressingMode::Absolute),
         OpCode::new(0x6c, "JMP", 3, 5, AddressingMode::Indirect),
+        // Clear flags
+        OpCode::new(0x18, "CLC", 1, 2, AddressingMode::Implied),
+        OpCode::new(0xD8, "CLD", 1, 2, AddressingMode::Implied),
+        OpCode::new(0x58, "CLI", 1, 2, AddressingMode::Implied),
+        OpCode::new(0xB8, "CLV", 1, 2, AddressingMode::Implied),
+        // Set flags
+        OpCode::new(0x38, "SEC", 1, 2, AddressingMode::Implied),
+        OpCode::new(0xF8, "SED", 1, 2, AddressingMode::Implied),
+        OpCode::new(0x78, "SEI", 1, 2, AddressingMode::Implied),
     ]
 });
 
