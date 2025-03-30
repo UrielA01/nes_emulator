@@ -11,7 +11,7 @@ impl CPU {
         result
     }
 
-    fn asl(&mut self, mode: &AddressingMode) {
+    pub fn asl(&mut self, mode: &AddressingMode) {
         match mode {
             AddressingMode::Accumulator => {
                 self.register_a = self.asl_logic(self.register_a);
@@ -26,7 +26,7 @@ impl CPU {
         }
     }
 
-    fn adc(&mut self, mode: &AddressingMode) {
+    pub fn adc(&mut self, mode: &AddressingMode) {
         let addr = self.get_operand_address(mode);
         let value = self.mem_read(addr);
 
