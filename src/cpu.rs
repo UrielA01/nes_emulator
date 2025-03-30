@@ -122,7 +122,7 @@ impl CPU {
         let result = (self.register_a as u16)
             + (value as u16)
             + ((self.status & StatusFlags::CARRY).bits() as u16);
-        self.status.set(StatusFlags::CARRY, result > 0xff);
+        self.update_carry_adc(result);
 
         let overflow = ((self.register_a ^ result as u8) & (value ^ result as u8) & 0x80) != 0;
         self.status.set(StatusFlags::OVERFLOW, overflow);
@@ -148,7 +148,7 @@ impl CPU {
 
     fn asl_logic(&mut self, value: u8) -> u8 {
         let result = value << 1;
-        self.status.set(StatusFlags::CARRY, (value & 0x80) != 0);
+        self.update_carry_asl(value);
         self.update_zero_and_negative_flags(result);
         result
     }
@@ -172,6 +172,30 @@ impl CPU {
         self.status.set(StatusFlags::ZERO, result == 0);
         self.status
             .set(StatusFlags::NEGATIVE, result & 0b1000_0000 != 0);
+    }
+
+    fn update_carry_asl(&mut self, value: u8) {
+        self.status.set(StatusFlags::CARRY, (value & 0x80) != 0);
+    }
+
+    #[allow(dead_code)]
+    fn update_carry_lsr(&mut self, value: u8) {
+        self.status.set(StatusFlags::CARRY, (value & 0x01) != 0);
+    }
+
+    #[allow(dead_code)]
+    fn update_carry_adc(&mut self, result: u16) {
+        self.status.set(StatusFlags::CARRY, result > 0xFF);
+    }
+
+    #[allow(dead_code)]
+    fn update_carry_sbc(&mut self, result: u16) {
+        self.status.set(StatusFlags::CARRY, result < 0x100);
+    }
+
+    #[allow(dead_code)]
+    fn update_carry_cmp(&mut self, register: u8, operand: u8) {
+        self.status.set(StatusFlags::CARRY, register >= operand);
     }
 
     fn get_operand_address(&mut self, mode: &AddressingMode) -> u16 {
