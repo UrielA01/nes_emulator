@@ -18,6 +18,7 @@ use bitflags::bitflags;
 #[allow(non_camel_case_types)]
 pub enum AddressingMode {
     Immediate,
+    Accumulator,
     ZeroPage,
     ZeroPage_X,
     ZeroPage_Y,
@@ -145,6 +146,28 @@ impl CPU {
         self.update_zero_and_negative_flags(result)
     }
 
+    fn asl_logic(&mut self, value: u8) -> u8 {
+        let result = value << 1;
+        self.status.set(StatusFlags::CARRY, (value & 0x80) != 0);
+        self.update_zero_and_negative_flags(result);
+        result
+    }
+
+    fn asl(&mut self, mode: &AddressingMode) {
+        match mode {
+            AddressingMode::Accumulator => {
+                self.register_a = self.asl_logic(self.register_a);
+            }
+            _ => {
+                let addr = self.get_operand_address(mode);
+                let value = self.mem_read(addr);
+
+                let result = self.asl_logic(value);
+                self.mem_write(addr, result);
+            }
+        }
+    }
+
     fn update_zero_and_negative_flags(&mut self, result: u8) {
         self.status.set(StatusFlags::ZERO, result == 0);
         self.status
@@ -212,7 +235,7 @@ impl CPU {
                 deref
             }
 
-            AddressingMode::NoneAddressing => {
+            AddressingMode::NoneAddressing | _ => {
                 panic!("mode {:?} is not supported", mode);
             }
         }
@@ -263,6 +286,8 @@ impl CPU {
                 0x4c | 0x6c => self.jmp(&opcode.mode),
 
                 0x29 | 0x25 | 0x35 | 0x2d | 0x3d | 0x39 | 0x21 | 0x31 => self.and(&opcode.mode),
+
+                0x06 | 0x16 | 0x0e | 0x1e | 0x0a => self.asl(&opcode.mode),
 
                 0x00 => return,
 
@@ -319,6 +344,29 @@ mod test {
         cpu.load_and_run(vec![0xa9, 0x64, 0x69, 0x32, 0x00]);
         assert_eq!(cpu.register_a, 150);
         assert!((cpu.status & StatusFlags::OVERFLOW).eq(&StatusFlags::OVERFLOW));
+    }
+
+    #[test]
+    fn test_asl_accumulator() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0xA9, 0x41, 0x0A, 0x00]);
+
+        assert_eq!(cpu.register_a, 0b1000_0010);
+        assert_eq!(cpu.status.contains(StatusFlags::CARRY), false);
+        assert_eq!(cpu.status.contains(StatusFlags::NEGATIVE), true);
+        assert_eq!(cpu.status.contains(StatusFlags::ZERO), false);
+    }
+
+    #[test]
+    fn test_asl_memory() {
+        let mut cpu = CPU::new();
+        cpu.mem_write(0x10, 0xC0);
+        cpu.load_and_run(vec![0x06, 0x10, 0x00]);
+
+        assert_eq!(cpu.mem_read(0x10), 0x80);
+        assert_eq!(cpu.status.contains(StatusFlags::CARRY), true);
+        assert_eq!(cpu.status.contains(StatusFlags::NEGATIVE), true);
+        assert_eq!(cpu.status.contains(StatusFlags::ZERO), false);
     }
 
     #[test]
