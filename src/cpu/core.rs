@@ -151,6 +151,8 @@ impl CPU {
 
                 0x09 | 0x05 | 0x15 | 0x0d | 0x1d | 0x19 | 0x01 | 0x11 => self.ora(&opcode.mode),
 
+                0x024 | 0x2c => self.bit(&opcode.mode),
+
                 0x06 | 0x16 | 0x0e | 0x1e | 0x0a => self.asl(&opcode.mode),
 
                 0x18 => self.clear_carry_flag(),

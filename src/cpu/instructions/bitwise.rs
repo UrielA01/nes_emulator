@@ -1,4 +1,7 @@
-use crate::cpu::cpu::{AddressingMode, CPU};
+use crate::cpu::{
+    cpu::{AddressingMode, CPU},
+    flags::StatusFlags,
+};
 enum LogicalGate {
     AND,
     OR,
@@ -28,6 +31,17 @@ impl CPU {
 
     pub fn eor(&mut self, mode: &AddressingMode) {
         self.logical_gate(mode, LogicalGate::XOR);
+    }
+
+    pub fn bit(&mut self, mode: &AddressingMode) {
+        let value = self.get_mode_return_value(mode);
+
+        self.status
+            .set(StatusFlags::ZERO, self.register_a & value == 0);
+        self.status
+            .set(StatusFlags::NEGATIVE, value & 0b10000000 > 0);
+        self.status
+            .set(StatusFlags::OVERFLOW, value & 0b01000000 > 0);
     }
 }
 

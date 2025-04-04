@@ -124,6 +124,9 @@ static CPU_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
             5, /*+1 if page crossed*/
             AddressingMode::Indirect_Y,
         ),
+        // BIT
+        OpCode::new(0x24, "BIT", 2, 3, AddressingMode::ZeroPage),
+        OpCode::new(0x2c, "BIT", 3, 4, AddressingMode::Absolute),
         // ASL
         OpCode::new(0x0a, "ASL", 1, 2, AddressingMode::Accumulator),
         OpCode::new(0x06, "ASL", 2, 5, AddressingMode::ZeroPage),
