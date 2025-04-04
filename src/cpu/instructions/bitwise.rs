@@ -16,9 +16,6 @@ impl CPU {
             LogicalGate::XOR => self.register_a ^ value,
         };
 
-        println!("a - {}", self.register_a);
-        println!("value - {}", value);
-
         self.register_a = result;
         self.update_zero_and_negative_flags(result)
     }
