@@ -2,11 +2,24 @@ use crate::cpu::cpu::{AddressingMode, CPU};
 
 impl CPU {
     pub fn lda(&mut self, mode: &AddressingMode) {
-        let addr = self.get_operand_address(mode);
-        let value = self.mem_read(addr);
+        let value = self.get_mode_return_value(mode);
 
         self.register_a = value;
         self.update_zero_and_negative_flags(self.register_a);
+    }
+
+    pub fn ldx(&mut self, mode: &AddressingMode) {
+        let value = self.get_mode_return_value(mode);
+
+        self.register_x = value;
+        self.update_zero_and_negative_flags(self.register_x);
+    }
+
+    pub fn ldy(&mut self, mode: &AddressingMode) {
+        let value = self.get_mode_return_value(mode);
+
+        self.register_y = value;
+        self.update_zero_and_negative_flags(self.register_y);
     }
 
     pub fn tax(&mut self) {
@@ -50,6 +63,24 @@ mod test {
         cpu.load_and_run(vec![0xa5, 0x10, 0x00]);
 
         assert_eq!(cpu.register_a, 0x55);
+    }
+
+    #[test]
+    fn test_0xa2_ldx_immediate_load_data() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0xa2, 0x05, 0x00]);
+        assert_eq!(cpu.register_x, 5);
+        assert!(cpu.status.bits() & StatusFlags::ZERO.bits() == 0);
+        assert!(cpu.status.bits() & StatusFlags::NEGATIVE.bits() == 0);
+    }
+
+    #[test]
+    fn test_0xa0_ldy_immediate_load_data() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0xa0, 0x05, 0x00]);
+        assert_eq!(cpu.register_y, 5);
+        assert!(cpu.status.bits() & StatusFlags::ZERO.bits() == 0);
+        assert!(cpu.status.bits() & StatusFlags::NEGATIVE.bits() == 0);
     }
 
     #[test]

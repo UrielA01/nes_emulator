@@ -73,6 +73,12 @@ impl CPU {
         }
     }
 
+    pub fn get_mode_return_value(&mut self, mode: &AddressingMode) -> u8 {
+        let addr = self.get_operand_address(mode);
+        let value = self.mem_read(addr);
+        return value;
+    }
+
     pub fn reset(&mut self) {
         self.register_a = 0;
         self.register_x = 0;
@@ -107,6 +113,11 @@ impl CPU {
 
             match code {
                 0xA9 | 0xA5 | 0xAD | 0xb5 | 0xbd | 0xb9 | 0xa1 | 0xb1 => self.lda(&opcode.mode),
+
+                0xa2 | 0xa6 | 0xb6 | 0xae | 0xbe => self.ldx(&opcode.mode),
+
+                0xa0 | 0xa4 | 0xb4 | 0xac | 0xbc => self.ldy(&opcode.mode),
+
                 0x69 | 0x65 | 0x75 | 0x6d | 0x7d | 0x79 | 0x61 | 0x71 => self.adc(&opcode.mode),
 
                 0x85 | 0x95 | 0x8d | 0x9d | 0x99 | 0x81 | 0x91 => self.sta(&opcode.mode),

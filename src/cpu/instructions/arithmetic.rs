@@ -27,8 +27,7 @@ impl CPU {
     }
 
     pub fn adc(&mut self, mode: &AddressingMode) {
-        let addr = self.get_operand_address(mode);
-        let value = self.mem_read(addr);
+        let value = self.get_mode_return_value(mode);
 
         let result = (self.register_a as u16)
             + (value as u16)

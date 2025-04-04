@@ -7,8 +7,7 @@ enum LogicalGate {
 
 impl CPU {
     fn logical_gate(&mut self, mode: &AddressingMode, gate: LogicalGate) {
-        let addr = self.get_operand_address(mode);
-        let value = self.mem_read(addr);
+        let value = self.get_mode_return_value(mode);
 
         let result = match gate {
             LogicalGate::AND => self.register_a & value,
