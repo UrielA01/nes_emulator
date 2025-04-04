@@ -31,6 +31,16 @@ impl CPU {
         let addr = self.get_operand_address(mode);
         self.mem_write(addr, self.register_a);
     }
+
+    pub fn stx(&mut self, mode: &AddressingMode) {
+        let addr = self.get_operand_address(mode);
+        self.mem_write(addr, self.register_x);
+    }
+
+    pub fn sty(&mut self, mode: &AddressingMode) {
+        let addr = self.get_operand_address(mode);
+        self.mem_write(addr, self.register_y);
+    }
 }
 
 #[cfg(test)]
@@ -89,5 +99,32 @@ mod test {
         cpu.load_and_run(vec![0xa9, 0x0A, 0xaa, 0x00]);
 
         assert_eq!(cpu.register_x, 10)
+    }
+
+    #[test]
+    fn test_0x85_sta_zero_page() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0xa9, 0x05, 0x85, 0x08, 0x00]);
+
+        assert_eq!(cpu.register_a, 5);
+        assert_eq!(cpu.mem_read(0x08), 5)
+    }
+
+    #[test]
+    fn test_0x86_stx_zero_page() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0xa2, 0x05, 0x86, 0x08, 0x00]);
+
+        assert_eq!(cpu.register_x, 5);
+        assert_eq!(cpu.mem_read(0x08), 5)
+    }
+
+    #[test]
+    fn test_0x84_sty_zero_page() {
+        let mut cpu = CPU::new();
+        cpu.load_and_run(vec![0xa0, 0x05, 0x84, 0x08, 0x00]);
+
+        assert_eq!(cpu.register_y, 5);
+        assert_eq!(cpu.mem_read(0x08), 5)
     }
 }
