@@ -1,20 +1,19 @@
 use crate::cpu::cpu::CPU;
 use bitflags::bitflags;
 
-/// # Status Register (P) http://wiki.nesdev.com/w/index.php/Status_flags
-///
-///  7 6 5 4 3 2 1 0
-///  N V _ B D I Z C
-///  | |   | | | | +--- Carry Flag
-///  | |   | | | +----- Zero Flag
-///  | |   | | +------- Interrupt Disable
-///  | |   | +--------- Decimal Mode (not used on NES)
-///  | |   +----------- Break Command
-///  | +--------------- Overflow Flag
-///  +----------------- Negative Flag
-///
-
 bitflags! {
+    /// # Status Register (P) http://wiki.nesdev.com/w/index.php/Status_flags
+    ///
+    ///  7 6 5 4 3 2 1 0
+    ///  N V _ B D I Z C
+    ///  | |   | | | | +--- Carry Flag
+    ///  | |   | | | +----- Zero Flag
+    ///  | |   | | +------- Interrupt Disable
+    ///  | |   | +--------- Decimal Mode (not used on NES)
+    ///  | |   +----------- Break Command
+    ///  | +--------------- Overflow Flag
+    ///  +----------------- Negative Flag
+    ///
     #[derive(Copy, Clone, PartialEq, Eq, Debug, Hash)]
     pub struct StatusFlags: u8 {
         const CARRY     = 0b0000_0001;
