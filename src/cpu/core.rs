@@ -127,6 +127,9 @@ impl CPU {
                 0x84 | 0x94 | 0x8c => self.sty(&opcode.mode),
 
                 0xAA => self.tax(),
+                0xa8 => self.tay(),
+                0x8a => self.txa(),
+                0x98 => self.tya(),
 
                 0xe8 => self.inx(),
 
