@@ -38,8 +38,7 @@ impl CPU {
         self.status.set(StatusFlags::CARRY, (value & 0x80) != 0);
     }
 
-    #[allow(dead_code)]
-    fn update_carry_lsr(&mut self, value: u8) {
+    pub fn update_carry_lsr(&mut self, value: u8) {
         self.status.set(StatusFlags::CARRY, (value & 0x01) != 0);
     }
 

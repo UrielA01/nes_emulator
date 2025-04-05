@@ -155,6 +155,8 @@ impl CPU {
 
                 0x06 | 0x16 | 0x0e | 0x1e | 0x0a => self.asl(&opcode.mode),
 
+                0x4a | 0x46 | 0x56 | 0x4e | 0x5e => self.lsr(&opcode.mode),
+
                 0x18 => self.clear_carry_flag(),
                 0xD8 => self.clear_decimal_flag(),
                 0x58 => self.clear_interrupt_disable_flag(),
