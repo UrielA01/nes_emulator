@@ -43,6 +43,41 @@ static CPU_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
         OpCode::new(0x79, "ADC", 3, 4, AddressingMode::Absolute_Y),
         OpCode::new(0x61, "ADC", 2, 6, AddressingMode::Indirect_X),
         OpCode::new(0x71, "ADC", 2, 5, AddressingMode::Indirect_Y),
+        // CMP
+        OpCode::new(0xc9, "CMP", 2, 2, AddressingMode::Immediate),
+        OpCode::new(0xc5, "CMP", 2, 3, AddressingMode::ZeroPage),
+        OpCode::new(0xd5, "CMP", 2, 4, AddressingMode::ZeroPage_X),
+        OpCode::new(0xcd, "CMP", 3, 4, AddressingMode::Absolute),
+        OpCode::new(
+            0xdd,
+            "CMP",
+            3,
+            4, /*+1 if page crossed*/
+            AddressingMode::Absolute_X,
+        ),
+        OpCode::new(
+            0xd9,
+            "CMP",
+            3,
+            4, /*+1 if page crossed*/
+            AddressingMode::Absolute_Y,
+        ),
+        OpCode::new(0xc1, "CMP", 2, 6, AddressingMode::Indirect_X),
+        OpCode::new(
+            0xd1,
+            "CMP",
+            2,
+            5, /*+1 if page crossed*/
+            AddressingMode::Indirect_Y,
+        ),
+        // CPX
+        OpCode::new(0xe0, "CPX", 2, 2, AddressingMode::Immediate),
+        OpCode::new(0xe4, "CPX", 2, 3, AddressingMode::ZeroPage),
+        OpCode::new(0xec, "CPX", 3, 4, AddressingMode::Absolute),
+        //CPY
+        OpCode::new(0xc0, "CPY", 2, 2, AddressingMode::Immediate),
+        OpCode::new(0xc4, "CPY", 2, 3, AddressingMode::ZeroPage),
+        OpCode::new(0xcc, "CPY", 3, 4, AddressingMode::Absolute),
         // AND
         OpCode::new(0x29, "AND", 2, 2, AddressingMode::Immediate),
         OpCode::new(0x25, "AND", 2, 3, AddressingMode::ZeroPage),
