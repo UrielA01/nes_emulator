@@ -34,6 +34,13 @@ static CPU_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
         OpCode::new(0xc8, "INY", 1, 2, AddressingMode::Implied),
         OpCode::new(0xca, "DEX", 1, 2, AddressingMode::Implied),
         OpCode::new(0x88, "DEY", 1, 2, AddressingMode::Implied),
+        // Stack
+        OpCode::new(0x48, "PHA", 1, 3, AddressingMode::Implied),
+        OpCode::new(0x08, "PHP", 1, 3, AddressingMode::Implied),
+        OpCode::new(0x68, "PLA", 1, 4, AddressingMode::Implied),
+        OpCode::new(0x28, "PLP", 1, 4, AddressingMode::Implied),
+        OpCode::new(0x9a, "TXS", 1, 2, AddressingMode::Implied),
+        OpCode::new(0xba, "TSX", 1, 2, AddressingMode::Implied),
         // ADC
         OpCode::new(0x69, "ADC", 2, 2, AddressingMode::Immediate),
         OpCode::new(0x65, "ADC", 2, 3, AddressingMode::ZeroPage),

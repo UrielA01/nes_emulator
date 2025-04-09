@@ -25,6 +25,7 @@ pub struct CPU {
     pub status: StatusFlags,
     pub program_counter: u16,
     pub memory: [u8; 0xFFFF],
+    pub sp: u8,
 }
 
 impl CPU {
@@ -36,6 +37,7 @@ impl CPU {
             status: StatusFlags::UNUSED | StatusFlags::BREAK,
             program_counter: 0,
             memory: [0; 0xFFFF],
+            sp: 0xff,
         }
     }
 }

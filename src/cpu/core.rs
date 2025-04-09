@@ -169,6 +169,14 @@ impl CPU {
                 0xF8 => self.set_decimal_flag(),
                 0x78 => self.set_interrupt_disable_flag(),
 
+                // Stack
+                0x48 => self.pha(),
+                0x08 => self.php(),
+                0x68 => self.pla(),
+                0x28 => self.plp(),
+                0x9a => self.txs(),
+                0xba => self.tsx(),
+
                 0x00 => return,
 
                 _ => todo!(),
