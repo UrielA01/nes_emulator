@@ -4,98 +4,63 @@ use crate::cpu::{
 };
 
 impl CPU {
-    fn asl_logic(&mut self, value: u8) -> u8 {
-        let result = value << 1;
-        self.update_carry_asl(value);
-        self.update_zero_and_negative_flags(result);
-        result
-    }
-
-    fn lsr_logic(&mut self, value: u8) -> u8 {
-        let result = value >> 1;
-        self.update_carry_lsr(value);
-        self.update_zero_and_negative_flags(result);
-        result
-    }
-
-    fn rol_logic(&mut self, value: u8) -> u8 {
-        let mut result = value << 1;
-        if self.status.contains(StatusFlags::CARRY) {
-            result = result | 0b0000_0001;
+    fn apply_shift<F>(&mut self, mode: &AddressingMode, op: F)
+    where
+        F: FnOnce(&mut Self, u8) -> u8,
+    {
+        match mode {
+            AddressingMode::Accumulator => {
+                self.register_a = op(self, self.register_a);
+            }
+            _ => {
+                let addr = self.get_operand_address(mode);
+                let value = self.mem_read(addr);
+                let result = op(self, value);
+                self.mem_write(addr, result);
+            }
         }
-        self.update_carry_asl(value);
-        self.update_zero_and_negative_flags(result);
-        result
-    }
-
-    fn ror_logic(&mut self, value: u8) -> u8 {
-        let mut result = value >> 1;
-        if self.status.contains(StatusFlags::CARRY) {
-            result = result | 0b1000_0000;
-        }
-        self.update_carry_lsr(value);
-        self.update_zero_and_negative_flags(result);
-        result
     }
 
     pub fn asl(&mut self, mode: &AddressingMode) {
-        match mode {
-            AddressingMode::Accumulator => {
-                self.register_a = self.asl_logic(self.register_a);
-            }
-            _ => {
-                let addr = self.get_operand_address(mode);
-                let value = self.mem_read(addr);
-
-                let result = self.asl_logic(value);
-                self.mem_write(addr, result);
-            }
-        }
+        self.apply_shift(mode, |cpu, value| {
+            let result = value << 1;
+            cpu.update_carry_asl(value);
+            cpu.update_zero_and_negative_flags(result);
+            result
+        });
     }
 
     pub fn lsr(&mut self, mode: &AddressingMode) {
-        match mode {
-            AddressingMode::Accumulator => {
-                self.register_a = self.lsr_logic(self.register_a);
-            }
-            _ => {
-                let addr = self.get_operand_address(mode);
-                let value = self.mem_read(addr);
-
-                let result = self.lsr_logic(value);
-                self.mem_write(addr, result);
-            }
-        }
+        self.apply_shift(mode, |cpu, value| {
+            let result = value >> 1;
+            cpu.update_carry_lsr(value);
+            cpu.update_zero_and_negative_flags(result);
+            result
+        });
     }
 
     pub fn rol(&mut self, mode: &AddressingMode) {
-        match mode {
-            AddressingMode::Accumulator => {
-                self.register_a = self.rol_logic(self.register_a);
+        self.apply_shift(mode, |cpu, value| {
+            let mut result = value << 1;
+            if cpu.status.contains(StatusFlags::CARRY) {
+                result |= 0b0000_0001;
             }
-            _ => {
-                let addr = self.get_operand_address(mode);
-                let value = self.mem_read(addr);
-
-                let result = self.rol_logic(value);
-                self.mem_write(addr, result);
-            }
-        }
+            cpu.update_carry_asl(value);
+            cpu.update_zero_and_negative_flags(result);
+            result
+        });
     }
 
     pub fn ror(&mut self, mode: &AddressingMode) {
-        match mode {
-            AddressingMode::Accumulator => {
-                self.register_a = self.ror_logic(self.register_a);
+        self.apply_shift(mode, |cpu, value| {
+            let mut result = value >> 1;
+            if cpu.status.contains(StatusFlags::CARRY) {
+                result |= 0b1000_0000;
             }
-            _ => {
-                let addr = self.get_operand_address(mode);
-                let value = self.mem_read(addr);
-
-                let result = self.ror_logic(value);
-                self.mem_write(addr, result);
-            }
-        }
+            cpu.update_carry_lsr(value);
+            cpu.update_zero_and_negative_flags(result);
+            result
+        });
     }
 }
 
