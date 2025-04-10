@@ -161,6 +161,10 @@ impl CPU {
 
                 0x4a | 0x46 | 0x56 | 0x4e | 0x5e => self.lsr(&opcode.mode),
 
+                0x26 | 0x36 | 0x2e | 0x3e | 0x2a => self.rol(&opcode.mode),
+
+                0x6a | 0x66 | 0x76 | 0x6e | 0x7e => self.ror(&opcode.mode),
+
                 0x18 => self.clear_carry_flag(),
                 0xD8 => self.clear_decimal_flag(),
                 0x58 => self.clear_interrupt_disable_flag(),
