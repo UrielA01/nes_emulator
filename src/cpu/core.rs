@@ -89,8 +89,8 @@ impl CPU {
     }
 
     pub fn load(&mut self, program: Vec<u8>) {
-        let start_index = 0x8000;
-        let end_index = 0x8000 + program.len();
+        let start_index = 0x0600;
+        let end_index = 0x0600 + program.len();
         let program_counter_pos = 0xFFFC;
         self.memory[start_index..(end_index)].copy_from_slice(&program);
         self.mem_write_u16(program_counter_pos, start_index as u16);
@@ -103,7 +103,15 @@ impl CPU {
     }
 
     pub fn run(&mut self) {
+        self.run_with_callback(|_| {});
+    }
+
+    pub fn run_with_callback<F>(&mut self, mut callback: F)
+    where
+        F: FnMut(&mut CPU),
+    {
         loop {
+            callback(self);
             let code = self.mem_read(self.program_counter);
             self.program_counter += 1;
             let original_program_counter = self.program_counter;
@@ -195,6 +203,7 @@ impl CPU {
                 0xba => self.tsx(),
 
                 0x00 => return,
+
                 0xea => {}
 
                 _ => todo!(),
