@@ -83,6 +83,7 @@ impl CPU {
         self.register_a = 0;
         self.register_x = 0;
         self.status = StatusFlags::UNUSED | StatusFlags::BREAK;
+        self.sp = 0xff;
 
         self.program_counter = self.mem_read_u16(0xFFFC);
     }
@@ -182,6 +183,7 @@ impl CPU {
                 0xba => self.tsx(),
 
                 0x00 => return,
+                0xea => {}
 
                 _ => todo!(),
             }
