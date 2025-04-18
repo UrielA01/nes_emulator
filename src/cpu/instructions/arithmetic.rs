@@ -4,9 +4,7 @@ use crate::cpu::{
 };
 
 impl CPU {
-    pub fn adc(&mut self, mode: &AddressingMode) {
-        let value = self.get_mode_return_value(mode);
-
+    fn add_to_register_a(&mut self, value: u8) {
         let result = (self.register_a as u16)
             + (value as u16)
             + ((self.status & StatusFlags::CARRY).bits() as u16);
@@ -18,6 +16,16 @@ impl CPU {
         self.update_zero_and_negative_flags(result as u8);
 
         self.register_a = result as u8;
+    }
+
+    pub fn adc(&mut self, mode: &AddressingMode) {
+        let value = self.get_mode_return_value(mode);
+        self.add_to_register_a(value);
+    }
+
+    pub fn sbc(&mut self, mode: &AddressingMode) {
+        let value = self.get_mode_return_value(mode);
+        self.add_to_register_a(((value as i8).wrapping_neg().wrapping_sub(1)) as u8);
     }
 
     fn compare_register(&mut self, mode: &AddressingMode, register: u8) {
