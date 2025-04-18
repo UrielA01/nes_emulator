@@ -174,6 +174,16 @@ impl CPU {
                 0xF8 => self.set_decimal_flag(),
                 0x78 => self.set_interrupt_disable_flag(),
 
+                // Branches
+                0x90 => self.bcc(),
+                0xd0 => self.bne(),
+                0x70 => self.bvs(),
+                0x50 => self.bvc(),
+                0x10 => self.bpl(),
+                0x30 => self.bmi(),
+                0xf0 => self.beq(),
+                0xb0 => self.bcs(),
+
                 // Stack
                 0x48 => self.pha(),
                 0x08 => self.php(),
