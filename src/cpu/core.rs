@@ -83,6 +83,7 @@ impl CPU {
         self.register_a = 0;
         self.register_x = 0;
         self.status = StatusFlags::UNUSED | StatusFlags::BREAK;
+        self.sp = 0xff;
 
         self.program_counter = self.mem_read_u16(0xFFFC);
     }
@@ -120,6 +121,10 @@ impl CPU {
 
                 0x69 | 0x65 | 0x75 | 0x6d | 0x7d | 0x79 | 0x61 | 0x71 => self.adc(&opcode.mode),
 
+                0xc9 | 0xc5 | 0xd5 | 0xcd | 0xdd | 0xd9 | 0xc1 | 0xd1 => self.cmp(&opcode.mode),
+                0xe0 | 0xe4 | 0xec => self.cpx(&opcode.mode),
+                0xc0 | 0xc4 | 0xcc => self.cpy(&opcode.mode),
+
                 0x85 | 0x95 | 0x8d | 0x9d | 0x99 | 0x81 | 0x91 => self.sta(&opcode.mode),
 
                 0x86 | 0x96 | 0x8e => self.stx(&opcode.mode),
@@ -144,6 +149,8 @@ impl CPU {
                 0xc6 | 0xd6 | 0xce | 0xde => self.dec(&opcode.mode),
 
                 0x4c | 0x6c => self.jmp(&opcode.mode),
+                0x20 => self.jsr(&opcode.mode),
+                0x60 => self.rts(),
 
                 0x29 | 0x25 | 0x35 | 0x2d | 0x3d | 0x39 | 0x21 | 0x31 => self.and(&opcode.mode),
 
@@ -157,6 +164,10 @@ impl CPU {
 
                 0x4a | 0x46 | 0x56 | 0x4e | 0x5e => self.lsr(&opcode.mode),
 
+                0x26 | 0x36 | 0x2e | 0x3e | 0x2a => self.rol(&opcode.mode),
+
+                0x6a | 0x66 | 0x76 | 0x6e | 0x7e => self.ror(&opcode.mode),
+
                 0x18 => self.clear_carry_flag(),
                 0xD8 => self.clear_decimal_flag(),
                 0x58 => self.clear_interrupt_disable_flag(),
@@ -165,7 +176,26 @@ impl CPU {
                 0xF8 => self.set_decimal_flag(),
                 0x78 => self.set_interrupt_disable_flag(),
 
+                // Branches
+                0x90 => self.bcc(),
+                0xd0 => self.bne(),
+                0x70 => self.bvs(),
+                0x50 => self.bvc(),
+                0x10 => self.bpl(),
+                0x30 => self.bmi(),
+                0xf0 => self.beq(),
+                0xb0 => self.bcs(),
+
+                // Stack
+                0x48 => self.pha(),
+                0x08 => self.php(),
+                0x68 => self.pla(),
+                0x28 => self.plp(),
+                0x9a => self.txs(),
+                0xba => self.tsx(),
+
                 0x00 => return,
+                0xea => {}
 
                 _ => todo!(),
             }
