@@ -1,14 +1,14 @@
 use crate::cpu::{cpu::CPU, flags::StatusFlags};
 
 impl CPU {
-    fn push(&mut self, data: u8) {
+    pub fn push(&mut self, data: u8) {
         let addr = 0x0100 | self.sp as u16;
 
         self.mem_write(addr, data);
         self.sp = self.sp.wrapping_sub(1);
     }
 
-    fn pop(&mut self) -> u8 {
+    pub fn pop(&mut self) -> u8 {
         self.sp = self.sp.wrapping_add(1);
         let addr = 0x0100 | self.sp as u16;
 

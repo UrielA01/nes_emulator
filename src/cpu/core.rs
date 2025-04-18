@@ -149,6 +149,8 @@ impl CPU {
                 0xc6 | 0xd6 | 0xce | 0xde => self.dec(&opcode.mode),
 
                 0x4c | 0x6c => self.jmp(&opcode.mode),
+                0x20 => self.jsr(&opcode.mode),
+                0x60 => self.rts(),
 
                 0x29 | 0x25 | 0x35 | 0x2d | 0x3d | 0x39 | 0x21 | 0x31 => self.and(&opcode.mode),
 
