@@ -1,4 +1,7 @@
-use crate::cpu::cpu::{AddressingMode, CPU};
+use crate::cpu::{
+    cpu::{AddressingMode, CPU},
+    memory::Mem,
+};
 
 impl CPU {
     pub fn inx(&mut self) {

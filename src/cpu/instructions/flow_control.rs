@@ -26,6 +26,8 @@ impl CPU {
 
 #[cfg(test)]
 mod test {
+    use crate::cpu::memory::Mem;
+
     use super::*;
 
     #[test]

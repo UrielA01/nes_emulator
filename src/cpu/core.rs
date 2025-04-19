@@ -1,7 +1,7 @@
 use crate::cpu::cpu::CPU;
 use crate::cpu::opcodes;
 
-use super::{cpu::AddressingMode, flags::StatusFlags};
+use super::{cpu::AddressingMode, flags::StatusFlags, memory::Mem};
 
 impl CPU {
     pub fn get_operand_address(&mut self, mode: &AddressingMode) -> u16 {

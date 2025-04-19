@@ -1,6 +1,7 @@
 use crate::cpu::{
     cpu::{AddressingMode, CPU},
     flags::StatusFlags,
+    memory::Mem,
 };
 
 impl CPU {
