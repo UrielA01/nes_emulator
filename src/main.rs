@@ -1,83 +1,16 @@
 use cpu::cpu::CPU;
 
 use rand::Rng;
-use sdl2::EventPump;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
-use sdl2::pixels::Color;
+use sdl::sdl::{handle_user_input, read_screen_state};
 use sdl2::pixels::PixelFormatEnum;
 
 pub mod cpu;
-
-fn handle_user_input(cpu: &mut CPU, event_pump: &mut EventPump) {
-    for event in event_pump.poll_iter() {
-        match event {
-            Event::Quit { .. }
-            | Event::KeyDown {
-                keycode: Some(Keycode::Escape),
-                ..
-            } => std::process::exit(0),
-            Event::KeyDown {
-                keycode: Some(Keycode::W),
-                ..
-            } => {
-                cpu.mem_write(0xff, 0x77);
-            }
-            Event::KeyDown {
-                keycode: Some(Keycode::S),
-                ..
-            } => {
-                cpu.mem_write(0xff, 0x73);
-            }
-            Event::KeyDown {
-                keycode: Some(Keycode::A),
-                ..
-            } => {
-                cpu.mem_write(0xff, 0x61);
-            }
-            Event::KeyDown {
-                keycode: Some(Keycode::D),
-                ..
-            } => {
-                cpu.mem_write(0xff, 0x64);
-            }
-            _ => { /* do nothing */ }
-        }
-    }
-}
-
-fn color(byte: u8) -> Color {
-    match byte {
-        0 => sdl2::pixels::Color::BLACK,
-        1 => sdl2::pixels::Color::WHITE,
-        2 | 9 => sdl2::pixels::Color::GREY,
-        3 | 10 => sdl2::pixels::Color::RED,
-        4 | 11 => sdl2::pixels::Color::GREEN,
-        5 | 12 => sdl2::pixels::Color::BLUE,
-        6 | 13 => sdl2::pixels::Color::MAGENTA,
-        7 | 14 => sdl2::pixels::Color::YELLOW,
-        _ => sdl2::pixels::Color::CYAN,
-    }
-}
-
-fn read_screen_state(cpu: &CPU, frame: &mut [u8; 32 * 3 * 32]) -> bool {
-    let mut frame_idx = 0;
-    let mut update = false;
-    for i in 0x0200..0x600 {
-        let color_idx = cpu.mem_read(i as u16);
-        let (b1, b2, b3) = color(color_idx).rgb();
-        if frame[frame_idx] != b1 || frame[frame_idx + 1] != b2 || frame[frame_idx + 2] != b3 {
-            frame[frame_idx] = b1;
-            frame[frame_idx + 1] = b2;
-            frame[frame_idx + 2] = b3;
-            update = true;
-        }
-        frame_idx += 3;
-    }
-    update
-}
+pub mod sdl;
 
 fn main() {
+    const WINDOW_HEIGHT: u32 = (32.0 * 10.0) as u32;
+    const WINDOW_WIDTH: u32 = (32.0 * 10.0) as u32;
+
     let game_code = vec![
         0x20, 0x06, 0x06, 0x20, 0x38, 0x06, 0x20, 0x0d, 0x06, 0x20, 0x2a, 0x06, 0x60, 0xa9, 0x02,
         0x85, 0x02, 0xa9, 0x04, 0x85, 0x03, 0xa9, 0x11, 0x85, 0x10, 0xa9, 0x10, 0x85, 0x12, 0xa9,
@@ -102,11 +35,16 @@ fn main() {
         0x60, 0xa2, 0x00, 0xea, 0xea, 0xca, 0xd0, 0xfb, 0x60,
     ];
 
+    // Load the game
+    let mut cpu = CPU::new();
+    cpu.load(game_code);
+    cpu.reset();
+
     // Init sdl2
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
     let window = video_subsystem
-        .window("Snake game", (32.0 * 10.0) as u32, (32.0 * 10.0) as u32)
+        .window("Snake game", WINDOW_WIDTH, WINDOW_HEIGHT)
         .position_centered()
         .build()
         .unwrap();
@@ -114,11 +52,6 @@ fn main() {
     let mut canvas = window.into_canvas().present_vsync().build().unwrap();
     let mut event_pump = sdl_context.event_pump().unwrap();
     canvas.set_scale(10.0, 10.0).unwrap();
-
-    // Load the game
-    let mut cpu = CPU::new();
-    cpu.load(game_code);
-    cpu.reset();
 
     let creator = canvas.texture_creator();
     let mut texture = creator
@@ -138,6 +71,6 @@ fn main() {
             canvas.present();
         }
 
-        ::std::thread::sleep(std::time::Duration::new(0, 70_000));
+        ::std::thread::sleep(std::time::Duration::new(0, 70_00));
     });
 }
