@@ -1,4 +1,6 @@
-use super::flags::StatusFlags;
+use crate::bus::Bus;
+
+use super::{flags::StatusFlags, memory::Mem};
 
 #[derive(Debug)]
 #[allow(non_camel_case_types)]
@@ -24,8 +26,8 @@ pub struct CPU {
     pub register_y: u8,
     pub status: StatusFlags,
     pub program_counter: u16,
-    pub memory: [u8; 0xFFFF],
     pub sp: u8,
+    pub bus: Bus,
 }
 
 impl CPU {
@@ -36,9 +38,27 @@ impl CPU {
             register_y: 0,
             status: StatusFlags::UNUSED | StatusFlags::BREAK,
             program_counter: 0,
-            memory: [0; 0xFFFF],
             sp: 0xff,
+            bus: Bus::new(),
         }
+    }
+}
+
+impl Mem for CPU {
+    fn mem_read(&self, addr: u16) -> u8 {
+        self.bus.mem_read(addr)
+    }
+
+    fn mem_write(&mut self, addr: u16, data: u8) {
+        self.bus.mem_write(addr, data)
+    }
+
+    fn mem_read_u16(&mut self, pos: u16) -> u16 {
+        self.bus.mem_read_u16(pos)
+    }
+
+    fn mem_write_u16(&mut self, pos: u16, data: u16) {
+        self.bus.mem_write_u16(pos, data)
     }
 }
 

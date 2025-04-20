@@ -1,4 +1,4 @@
-use crate::cpu::{cpu::CPU, flags::StatusFlags};
+use crate::cpu::{cpu::CPU, flags::StatusFlags, memory::Mem};
 
 impl CPU {
     pub fn push(&mut self, data: u8) {

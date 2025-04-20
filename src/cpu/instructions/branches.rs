@@ -1,4 +1,4 @@
-use crate::cpu::{cpu::CPU, flags::StatusFlags};
+use crate::cpu::{cpu::CPU, flags::StatusFlags, memory::Mem};
 
 impl CPU {
     fn branch(&mut self, condition: bool) {

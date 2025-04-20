@@ -47,7 +47,7 @@ impl CPU {
 
 #[cfg(test)]
 mod test {
-    use crate::cpu::flags::StatusFlags;
+    use crate::cpu::{flags::StatusFlags, memory::Mem};
 
     use super::*;
     #[test]
