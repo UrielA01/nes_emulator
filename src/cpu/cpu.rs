@@ -1,3 +1,5 @@
+use crate::bus::Bus;
+
 use super::{flags::StatusFlags, memory::Mem};
 
 #[derive(Debug)]
@@ -24,8 +26,8 @@ pub struct CPU {
     pub register_y: u8,
     pub status: StatusFlags,
     pub program_counter: u16,
-    pub memory: [u8; 0xFFFF],
     pub sp: u8,
+    pub bus: Bus,
 }
 
 impl CPU {
@@ -36,32 +38,27 @@ impl CPU {
             register_y: 0,
             status: StatusFlags::UNUSED | StatusFlags::BREAK,
             program_counter: 0,
-            memory: [0; 0xFFFF],
             sp: 0xff,
+            bus: Bus::new(),
         }
     }
 }
 
 impl Mem for CPU {
     fn mem_read(&self, addr: u16) -> u8 {
-        self.memory[addr as usize]
+        self.bus.mem_read(addr)
     }
 
     fn mem_write(&mut self, addr: u16, data: u8) {
-        self.memory[addr as usize] = data;
+        self.bus.mem_write(addr, data)
     }
 
-    fn mem_read_u16(&mut self, position: u16) -> u16 {
-        let low = self.mem_read(position) as u16;
-        let high = self.mem_read(position + 1) as u16;
-        (high << 8) | (low as u16)
+    fn mem_read_u16(&mut self, pos: u16) -> u16 {
+        self.bus.mem_read_u16(pos)
     }
 
     fn mem_write_u16(&mut self, pos: u16, data: u16) {
-        let high = (data >> 8) as u8;
-        let low = (data & 0xff) as u8;
-        self.mem_write(pos, low);
-        self.mem_write(pos + 1, high);
+        self.bus.mem_write_u16(pos, data)
     }
 }
 
