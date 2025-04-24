@@ -89,7 +89,15 @@ impl CPU {
     }
 
     pub fn run(&mut self) {
+        self.run_with_callback(|_| {});
+    }
+
+    pub fn run_with_callback<F>(&mut self, mut callback: F)
+    where
+        F: FnMut(&mut CPU),
+    {
         loop {
+            callback(self);
             let code = self.mem_read(self.program_counter);
             self.program_counter += 1;
             let original_program_counter = self.program_counter;
@@ -183,6 +191,7 @@ impl CPU {
                 0xba => self.tsx(),
 
                 0x00 => return,
+
                 0xea => {}
 
                 _ => todo!(),
