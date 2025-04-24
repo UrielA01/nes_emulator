@@ -67,6 +67,19 @@ impl CPU {
     pub fn test_new() -> Self {
         CPU::new(Bus::test_new())
     }
+
+    pub fn load(&mut self, program: Vec<u8>) {
+        use crate::rom::Rom;
+
+        let rom = Rom::from_test_code(program);
+        self.bus.load_rom(rom);
+    }
+
+    pub fn load_and_run(&mut self, program: Vec<u8>) {
+        self.load(program);
+        self.reset();
+        self.run()
+    }
 }
 
 #[cfg(test)]
