@@ -1,6 +1,6 @@
 use sdl2::{EventPump, event::Event, keyboard::Keycode, pixels::Color};
 
-use crate::cpu::cpu::CPU;
+use crate::cpu::{cpu::CPU, memory::Mem};
 
 pub fn handle_user_input(cpu: &mut CPU, event_pump: &mut EventPump) {
     for event in event_pump.poll_iter() {
