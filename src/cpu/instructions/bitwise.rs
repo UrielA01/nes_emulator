@@ -52,7 +52,8 @@ mod test {
     use super::*;
     #[test]
     fn test_and_operation() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.register_a = 0b11001100;
         cpu.mem_write(0x0200, 0x25); // AND ZeroPage opcode
         cpu.mem_write(0x0201, 0x10); // Address $10
@@ -68,7 +69,8 @@ mod test {
 
     #[test]
     fn test_or_operation() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.register_a = 0b11001100;
         cpu.mem_write(0x0200, 0x05); // ORA ZeroPage opcode
         cpu.mem_write(0x0201, 0x10); // Address $10
@@ -84,7 +86,8 @@ mod test {
 
     #[test]
     fn test_xor_operation() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.register_a = 0b11001100;
         cpu.mem_write(0x0200, 0x45); // EOR ZeroPage opcode
         cpu.mem_write(0x0201, 0x10); // Address $10
@@ -100,7 +103,8 @@ mod test {
 
     #[test]
     fn test_and_sets_zero_flag() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.register_a = 0b00001111;
         cpu.mem_write(0x0200, 0x25); // AND ZeroPage opcode
         cpu.mem_write(0x0201, 0x10);
@@ -115,7 +119,8 @@ mod test {
 
     #[test]
     fn test_eor_sets_negative_flag() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.register_a = 0b01010101;
         cpu.mem_write(0x0200, 0x45); // EOR ZeroPage opcode
         cpu.mem_write(0x0201, 0x10);

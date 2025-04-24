@@ -88,21 +88,6 @@ impl CPU {
         self.program_counter = self.mem_read_u16(0xFFFC);
     }
 
-    pub fn load(&mut self, program: Vec<u8>) {
-        const START_INDEX: u16 = 0x0000;
-        const PC_POS: u16 = 0xFFFC;
-        for i in 0..(program.len() as u16) {
-            self.mem_write(0x0000 + i, program[i as usize]);
-        }
-        self.mem_write_u16(PC_POS, START_INDEX);
-    }
-
-    pub fn load_and_run(&mut self, program: Vec<u8>) {
-        self.load(program);
-        self.reset();
-        self.run()
-    }
-
     pub fn run(&mut self) {
         loop {
             let code = self.mem_read(self.program_counter);

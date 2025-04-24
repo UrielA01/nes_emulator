@@ -93,7 +93,7 @@ mod test {
     // Flag control
     #[test]
     fn test_clear_and_set_carry_flag() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
 
         cpu.set_carry_flag();
         assert!(cpu.status.contains(StatusFlags::CARRY));
@@ -104,7 +104,7 @@ mod test {
 
     #[test]
     fn test_clear_and_set_decimal_flag() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
 
         cpu.set_decimal_flag();
         assert!(cpu.status.contains(StatusFlags::DECIMAL));
@@ -115,7 +115,7 @@ mod test {
 
     #[test]
     fn test_clear_overflow_flag() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
 
         cpu.status.insert(StatusFlags::OVERFLOW);
         cpu.clear_overflow_flag();
