@@ -53,7 +53,8 @@ mod test {
 
     #[test]
     fn test_0x69_adc_immediate() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0x69, 0x05, 0x00]);
         assert_eq!(cpu.register_a, 5);
         assert_eq!(cpu.status.contains(StatusFlags::CARRY), false);
@@ -62,7 +63,8 @@ mod test {
 
     #[test]
     fn test_0x69_adc_immediate_with_carry() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xa9, 0xFA, 0x69, 0x0A, 0x00]);
         assert_eq!(cpu.register_a, 4);
         assert_eq!(cpu.status.contains(StatusFlags::CARRY), true);
@@ -70,7 +72,8 @@ mod test {
 
     #[test]
     fn test_0x69_adc_immediate_with_overflow() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xa9, 0x64, 0x69, 0x32, 0x00]);
         assert_eq!(cpu.register_a, 150);
         assert_eq!(cpu.status.contains(StatusFlags::OVERFLOW), true);
@@ -78,7 +81,8 @@ mod test {
 
     #[test]
     fn test_0xc9_cmp_equal_sets_zero_and_carry() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xA9, 0x42, // LDA #$42
             0xC9, 0x42, // CMP #$42
@@ -91,7 +95,8 @@ mod test {
 
     #[test]
     fn test_0xc9_cmp_a_greater_than_m_sets_carry() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xA9, 0x80, // LDA #$80
             0xC9, 0x40, // CMP #$40
@@ -104,7 +109,8 @@ mod test {
 
     #[test]
     fn test_0xc9_cmp_a_less_than_m_sets_negative_and_clears_carry() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xA9, 0x30, // LDA #$30
             0xC9, 0x50, // CMP #$50
@@ -117,7 +123,8 @@ mod test {
 
     #[test]
     fn test_0xc9_cmp_signed_negative_result() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xA9, 0x10, // LDA #$10 (16)
             0xC9, 0x90, // CMP #$90 (144)
@@ -130,7 +137,8 @@ mod test {
 
     #[test]
     fn test_0xc9_cmp_signed_positive_result_with_negative_bit_set() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xA9, 0x90, // LDA #$90 (144)
             0xC9, 0x10, // CMP #$10 (16)

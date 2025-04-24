@@ -26,11 +26,14 @@ impl CPU {
 
 #[cfg(test)]
 mod test {
+    use crate::cpu::memory::Mem;
+
     use super::*;
 
     #[test]
     fn test_jmp_absolute() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0x4C, 0x34, 0x12, 0x00]);
 
         assert_eq!(cpu.program_counter - 1, 0x1234);
@@ -38,18 +41,18 @@ mod test {
 
     #[test]
     fn test_jmp_indirect() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
 
-        cpu.mem_write_u16(0x2000, 0x1234);
+        cpu.mem_write_u16(0x0000, 0x1234);
 
-        cpu.load_and_run(vec![0x6C, 0x00, 0x20, 0x00]);
+        cpu.load_and_run(vec![0x6C, 0x00, 0x00, 0x00]);
 
         assert_eq!(cpu.program_counter - 1, 0x1234);
     }
 
     #[test]
     fn test_jsr_rts() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
 
         cpu.load_and_run(vec![
             0x20, 0x09, 0x80, 0x20, 0x0c, 0x80, 0x20, 0x12, 0x80, 0xa2, 0x00, 0x60, 0xe8, 0xe0,
@@ -63,7 +66,7 @@ mod test {
 
     #[test]
     fn test_jsr_rts_2() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
 
         cpu.load_and_run(vec![
             0x20, 0x06, 0x80, // JSR $8006

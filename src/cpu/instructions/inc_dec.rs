@@ -1,4 +1,7 @@
-use crate::cpu::cpu::{AddressingMode, CPU};
+use crate::cpu::{
+    cpu::{AddressingMode, CPU},
+    memory::Mem,
+};
 
 impl CPU {
     pub fn inx(&mut self) {
@@ -46,51 +49,54 @@ mod test {
 
     #[test]
     fn test_0xee_inc_absolute() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
 
-        cpu.mem_write_u16(0x8010, 0x05);
-        cpu.load_and_run(vec![0xee, 0x10, 0x80, 0x00]);
+        cpu.mem_write_u16(0x0010, 0x05);
+        cpu.load_and_run(vec![0xee, 0x10, 0x00, 0x00]);
 
-        assert_eq!(cpu.mem_read_u16(0x8010), 6);
+        assert_eq!(cpu.mem_read_u16(0x0010), 6);
     }
 
     #[test]
     fn test_0xce_dec_absolute() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
 
-        cpu.mem_write_u16(0x8010, 0x05);
-        cpu.load_and_run(vec![0xce, 0x10, 0x80, 0x00]);
+        cpu.mem_write_u16(0x0010, 0x05);
+        cpu.load_and_run(vec![0xce, 0x10, 0x00, 0x00]);
 
-        assert_eq!(cpu.mem_read_u16(0x8010), 4);
+        assert_eq!(cpu.mem_read_u16(0x0010), 4);
     }
 
     #[test]
     fn test_0xce_dec_zero_flag() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.status.remove(StatusFlags::ZERO);
 
-        cpu.mem_write_u16(0x8010, 0x01);
-        cpu.load_and_run(vec![0xce, 0x10, 0x80, 0x00]);
+        cpu.mem_write_u16(0x0010, 0x01);
+        cpu.load_and_run(vec![0xce, 0x10, 0x00, 0x00]);
 
-        assert_eq!(cpu.mem_read_u16(0x8010), 0);
+        assert_eq!(cpu.mem_read_u16(0x0010), 0);
         assert!(cpu.status.contains(StatusFlags::ZERO));
     }
 
     #[test]
     fn test_0xce_dec_negative_flag() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.status.remove(StatusFlags::NEGATIVE);
 
-        cpu.mem_write_u16(0x8010, 0x00);
-        cpu.load_and_run(vec![0xce, 0x10, 0x80, 0x00]);
+        cpu.mem_write_u16(0x0010, 0x00);
+        cpu.load_and_run(vec![0xce, 0x10, 0x00, 0x00]);
 
-        assert_eq!(cpu.mem_read_u16(0x8010), 0xff);
+        assert_eq!(cpu.mem_read_u16(0x0010), 0xff);
         assert!(cpu.status.contains(StatusFlags::NEGATIVE));
     }
 
     #[test]
     fn test_inx_overflow() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xa9, 0xff, 0xaa, 0xe8, 0xe8, 0x00]);
 
         assert_eq!(cpu.register_x, 1)
@@ -98,7 +104,8 @@ mod test {
 
     #[test]
     fn test_0xe8_inx() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xe8, 0x00]);
 
         assert_eq!(cpu.register_x, 1)
@@ -106,7 +113,8 @@ mod test {
 
     #[test]
     fn test_0xc8_iny() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xc8, 0x00]);
 
         assert_eq!(cpu.register_y, 1)
@@ -114,7 +122,8 @@ mod test {
 
     #[test]
     fn test_0x88_dey() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xc8, 0x88, 0x00]);
 
         assert_eq!(cpu.register_y, 0)
@@ -122,7 +131,8 @@ mod test {
 
     #[test]
     fn test_0xca_dex() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xe8, 0xca, 0x00]);
 
         assert_eq!(cpu.register_x, 0)

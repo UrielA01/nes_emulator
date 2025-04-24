@@ -1,10 +1,11 @@
 use cpu::cpu::CPU;
-
 use rand::Rng;
 use sdl::sdl::{handle_user_input, read_screen_state};
 use sdl2::pixels::PixelFormatEnum;
 
+pub mod bus;
 pub mod cpu;
+pub mod rom;
 pub mod sdl;
 
 fn main() {

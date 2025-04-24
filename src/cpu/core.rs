@@ -1,7 +1,7 @@
 use crate::cpu::cpu::CPU;
 use crate::cpu::opcodes;
 
-use super::{cpu::AddressingMode, flags::StatusFlags};
+use super::{cpu::AddressingMode, flags::StatusFlags, memory::Mem};
 
 impl CPU {
     pub fn get_operand_address(&mut self, mode: &AddressingMode) -> u16 {
@@ -86,20 +86,6 @@ impl CPU {
         self.sp = 0xff;
 
         self.program_counter = self.mem_read_u16(0xFFFC);
-    }
-
-    pub fn load(&mut self, program: Vec<u8>) {
-        let start_index = 0x0600;
-        let end_index = 0x0600 + program.len();
-        let program_counter_pos = 0xFFFC;
-        self.memory[start_index..(end_index)].copy_from_slice(&program);
-        self.mem_write_u16(program_counter_pos, start_index as u16);
-    }
-
-    pub fn load_and_run(&mut self, program: Vec<u8>) {
-        self.load(program);
-        self.reset();
-        self.run()
     }
 
     pub fn run(&mut self) {
