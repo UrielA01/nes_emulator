@@ -39,7 +39,7 @@ impl CPU {
             status: StatusFlags::UNUSED | StatusFlags::BREAK,
             program_counter: 0x8000,
             sp: 0xff,
-            bus: bus,
+            bus,
         }
     }
 }
