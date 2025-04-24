@@ -28,7 +28,8 @@ mod test {
 
     #[test]
     fn test_0xaa_tax_move_a_to_x() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xa9, 0x0A, 0xaa, 0x00]);
 
         assert_eq!(cpu.register_x, 10)
@@ -36,7 +37,8 @@ mod test {
 
     #[test]
     fn test_0xa8_tay() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xa9, 0x0A, 0xa8, 0x00]);
 
         assert_eq!(cpu.register_y, 10)
@@ -44,7 +46,8 @@ mod test {
 
     #[test]
     fn test_0x8a_txa() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xa2, 0x0A, 0x8a, 0x00]);
 
         assert_eq!(cpu.register_a, 10)
@@ -52,7 +55,8 @@ mod test {
 
     #[test]
     fn test_0x98_tya() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xa0, 0x0A, 0x98, 0x00]);
 
         assert_eq!(cpu.register_a, 10)

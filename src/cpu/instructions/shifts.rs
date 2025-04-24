@@ -72,7 +72,8 @@ mod test {
     use super::*;
     #[test]
     fn test_asl_accumulator() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xA9, 0x41, 0x0A, 0x00]);
 
         assert_eq!(cpu.register_a, 0b1000_0010);
@@ -83,7 +84,8 @@ mod test {
 
     #[test]
     fn test_asl_memory() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.mem_write(0x10, 0xC0);
         cpu.load_and_run(vec![0x06, 0x10, 0x00]);
 
@@ -95,7 +97,8 @@ mod test {
 
     #[test]
     fn test_0x4a_lsr_accumulator() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xA9, 0b0000_0010, 0x4A, 0x00]);
 
         assert_eq!(cpu.register_a, 0b0000_0001);
@@ -106,7 +109,8 @@ mod test {
 
     #[test]
     fn test_0x4a_lsr_accumulator_sets_carry() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![0xA9, 0b0000_0001, 0x4A, 0x00]);
 
         assert_eq!(cpu.register_a, 0);
@@ -117,7 +121,8 @@ mod test {
 
     #[test]
     fn test_0x46_lsr_memory() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.mem_write(0x10, 0b0000_0011);
         cpu.load_and_run(vec![0x46, 0x10, 0x00]);
 
@@ -129,7 +134,8 @@ mod test {
 
     #[test]
     fn test_rol_accumulator() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xA9,
             0b0100_0001, // LDA #$41
@@ -143,7 +149,8 @@ mod test {
 
     #[test]
     fn test_ror_accumulator() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xA9,
             0b0000_0011, // LDA #$03

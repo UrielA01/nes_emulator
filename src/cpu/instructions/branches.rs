@@ -52,7 +52,8 @@ mod test {
 
     #[test]
     fn test_bne() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xa2, 0x08, 0xca, 0x8e, 0x00, 0x02, 0xe0, 0x03, 0xd0, 0xf8, 0x8e, 0x01, 0x02, 0x00,
         ]);
@@ -64,7 +65,8 @@ mod test {
 
     #[test]
     fn test_beq() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xa9, 0x00, // LDA #$00 → sets Zero flag
             0xf0, 0x02, // BEQ +2 → should jump over next instruction
@@ -77,7 +79,8 @@ mod test {
 
     #[test]
     fn test_bmi() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xa9, 0xff, // LDA #$FF → Negative flag set
             0x30, 0x02, // BMI +2 → should jump
@@ -90,7 +93,8 @@ mod test {
 
     #[test]
     fn test_bpl() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xa9, 0x01, // LDA #$01 → clears Negative flag
             0x10, 0x02, // BPL +2 → should jump
@@ -103,7 +107,8 @@ mod test {
 
     #[test]
     fn test_bcs() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0x38, // SEC → set carry
             0xb0, 0x02, // BCS +2 → should jump
@@ -117,7 +122,8 @@ mod test {
 
     #[test]
     fn test_bcc() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0x18, // CLC → clear carry
             0x90, 0x02, // BCC +2 → should jump
@@ -131,7 +137,8 @@ mod test {
 
     #[test]
     fn test_bvs() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xa9, 0x50, // LDA #$50
             0x69, 0x50, // ADC #$50 → causes overflow
@@ -145,7 +152,8 @@ mod test {
 
     #[test]
     fn test_bvc() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xa9, 0x01, // LDA #$01
             0x69, 0x01, // ADC #$01 → no overflow

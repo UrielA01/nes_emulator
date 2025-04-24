@@ -31,15 +31,15 @@ pub struct CPU {
 }
 
 impl CPU {
-    pub fn new() -> Self {
+    pub fn new(bus: Bus) -> Self {
         CPU {
             register_a: 0,
             register_x: 0,
             register_y: 0,
             status: StatusFlags::UNUSED | StatusFlags::BREAK,
-            program_counter: 0,
+            program_counter: 0x8000,
             sp: 0xff,
-            bus: Bus::new(),
+            bus: bus,
         }
     }
 }
@@ -63,14 +63,20 @@ impl Mem for CPU {
 }
 
 #[cfg(test)]
+impl CPU {
+    pub fn test_new() -> Self {
+        CPU::new(Bus::test_new())
+    }
+}
+
+#[cfg(test)]
 mod test {
     use super::*;
 
     #[test]
     fn test_5_ops_working_together() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
         cpu.load_and_run(vec![0xa9, 0xc0, 0xaa, 0xe8, 0x00]);
-
         assert_eq!(cpu.register_x, 0xc1)
     }
 }

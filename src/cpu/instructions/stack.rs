@@ -48,7 +48,8 @@ mod test {
 
     #[test]
     fn test_pha() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xA9, 0x42, // LDA #$42
             0x48, // PHA
@@ -61,7 +62,8 @@ mod test {
 
     #[test]
     fn test_php() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.status.insert(StatusFlags::CARRY | StatusFlags::ZERO);
         cpu.load_and_run(vec![
             0x08, // PHP
@@ -74,7 +76,8 @@ mod test {
 
     #[test]
     fn test_pla() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xA9, 0x37, // LDA #$37
             0x48, // PHA
@@ -87,7 +90,8 @@ mod test {
 
     #[test]
     fn test_plp() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         let init_status = StatusFlags::UNUSED | StatusFlags::BREAK; // Clear all
         cpu.load_and_run(vec![
             0x08, // PHP (push current status)
@@ -101,7 +105,8 @@ mod test {
 
     #[test]
     fn test_tsx() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0xba, // TSX
             0x00, // BRK
@@ -111,7 +116,8 @@ mod test {
 
     #[test]
     fn test_txs() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU::test_new();
+
         cpu.load_and_run(vec![
             0x9a, // TSX
             0x00, // BRK

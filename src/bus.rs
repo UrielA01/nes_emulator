@@ -1,4 +1,4 @@
-use crate::cpu::memory::Mem;
+use crate::{cpu::memory::Mem, rom::Rom};
 
 const RAM: u16 = 0x0000;
 const RAM_MIRRORS_END: u16 = 0x1FFF;
@@ -7,13 +7,24 @@ const PPU_REGISTERS_MIRRORS_END: u16 = 0x3FFF;
 
 pub struct Bus {
     cpu_vram: [u8; 2048],
+    rom: Rom,
 }
 
 impl Bus {
-    pub fn new() -> Self {
+    pub fn new(rom: Rom) -> Self {
         Bus {
             cpu_vram: [0; 2048],
+            rom,
         }
+    }
+
+    fn read_prg_rom(&self, mut addr: u16) -> u8 {
+        addr -= 0x8000;
+        if self.rom.prg_rom.len() == 0x4000 && addr >= 0x4000 {
+            // Mirror is needed
+            addr = addr % 0x4000;
+        }
+        self.rom.prg_rom[addr as usize]
     }
 }
 
@@ -28,6 +39,8 @@ impl Mem for Bus {
                 let _mirron_down_addr = addr & 0b00100000_00000111;
                 todo!("Support PPU")
             }
+            0x8000..=0xFFFF => self.read_prg_rom(addr),
+
             _ => {
                 println!("Ignoring mem access at {}", addr);
                 0
@@ -45,9 +58,26 @@ impl Mem for Bus {
                 let _mirron_down_addr = addr & 0b00100000_00000111;
                 todo!("Support PPU")
             }
+            0x8000..=0xFFFF => {
+                panic!("Attempt to write to Cartridge ROM space")
+            }
             _ => {
                 println!("Ignoring mem write-access at {}", addr);
             }
         }
+    }
+}
+
+#[cfg(test)]
+impl Bus {
+    pub fn test_new() -> Self {
+        Bus {
+            cpu_vram: [0; 2048],
+            rom: Rom::from_test_code(vec![]),
+        }
+    }
+
+    pub fn load_rom(&mut self, rom: Rom) {
+        self.rom = rom;
     }
 }

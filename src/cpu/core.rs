@@ -88,15 +88,15 @@ impl CPU {
         self.program_counter = self.mem_read_u16(0xFFFC);
     }
 
+    #[cfg(test)]
     pub fn load(&mut self, program: Vec<u8>) {
-        const START_INDEX: u16 = 0x0000;
-        const PC_POS: u16 = 0xFFFC;
-        for i in 0..(program.len() as u16) {
-            self.mem_write(0x0000 + i, program[i as usize]);
-        }
-        self.mem_write_u16(PC_POS, START_INDEX);
+        use crate::rom::Rom;
+
+        let rom = Rom::from_test_code(program);
+        self.bus.load_rom(rom);
     }
 
+    #[cfg(test)]
     pub fn load_and_run(&mut self, program: Vec<u8>) {
         self.load(program);
         self.reset();

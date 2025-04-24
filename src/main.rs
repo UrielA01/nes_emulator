@@ -1,6 +1,6 @@
 pub mod bus;
-pub mod cartidges;
 pub mod cpu;
+pub mod rom;
 
 fn main() {
     println!("Hello, world!");

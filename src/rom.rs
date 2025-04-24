@@ -44,31 +44,19 @@ impl Rom {
         let prg_rom_start = 16 + if skip_trainer { 512 } else { 0 };
         let chr_rom_start = prg_rom_start + prg_rom_size;
 
-        let mut rom = Rom {
+        Ok(Rom {
             prg_rom: raw[prg_rom_start..(prg_rom_start + prg_rom_size)].to_vec(),
             chr_rom: raw[chr_rom_start..(chr_rom_start + chr_rom_size)].to_vec(),
-            mapper,
-            screen_mirroring,
-        };
-
-        let reset_vector = 0x8000u16;
-        let vector_offset = if rom.prg_rom.len() == 0x4000 {
-            0x3FFC
-        } else {
-            0x7FFC
-        };
-
-        rom.prg_rom[vector_offset] = (reset_vector & 0xFF) as u8;
-        rom.prg_rom[vector_offset + 1] = (reset_vector >> 8) as u8;
-
-        Ok(rom)
+            mapper: mapper,
+            screen_mirroring: screen_mirroring,
+        })
     }
 
     #[cfg(test)]
-    pub fn from_test_code(program: Vec<u8>) -> Self {
-        let mut prg_rom = vec![0; 0x4000];
+    pub fn from_test_code(code: Vec<u8>) -> Self {
+        let mut prg_rom = vec![0; 0x4000]; // 16 KiB
 
-        for (i, byte) in program.iter().enumerate() {
+        for (i, byte) in code.iter().enumerate() {
             prg_rom[i] = *byte;
         }
 
@@ -78,7 +66,7 @@ impl Rom {
 
         Rom {
             prg_rom,
-            chr_rom: vec![0; 0x2000],
+            chr_rom: vec![0; 0x2000], // dummy CHR-ROM
             mapper: 0,
             screen_mirroring: Mirroring::HORIZONTAL,
         }
