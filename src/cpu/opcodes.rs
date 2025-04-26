@@ -26,6 +26,7 @@ impl OpCode {
 static CPU_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
     vec![
         OpCode::new(0x00, "BRK", 1, 7, AddressingMode::Implied),
+        OpCode::new(0xea, "NOP", 1, 7, AddressingMode::Implied),
         OpCode::new(0xaa, "TAX", 1, 2, AddressingMode::Implied),
         OpCode::new(0xa8, "TAY", 1, 2, AddressingMode::Implied),
         OpCode::new(0x8a, "TXA", 1, 2, AddressingMode::Implied),
