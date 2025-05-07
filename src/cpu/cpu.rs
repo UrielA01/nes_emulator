@@ -17,6 +17,7 @@ pub enum AddressingMode {
     Indirect,
     Indirect_X,
     Indirect_Y,
+    Relative,
     NoneAddressing,
 }
 

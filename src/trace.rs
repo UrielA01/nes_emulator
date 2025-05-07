@@ -1,9 +1,7 @@
-use std::fmt::format;
-
 use crate::cpu::{
     cpu::{AddressingMode, CPU},
     memory::Mem,
-    opcodes::{self, OpCode},
+    opcodes::OpCode,
 };
 
 impl CPU {
@@ -24,7 +22,7 @@ impl CPU {
         let value = self.get_mode_return_value(mode);
         match mode {
             AddressingMode::Immediate => {
-                format!("{}, #${:02X}", mnemonic, value)
+                format!("{} #${:02X}", mnemonic, value)
             }
             AddressingMode::Implied => format!("{}", mnemonic),
             AddressingMode::Accumulator => format!("{} A", mnemonic),
@@ -87,6 +85,15 @@ impl CPU {
                     mnemonic, base_addr, base_addr_with_y, final_addr, value
                 )
             }
+            AddressingMode::Relative => {
+                let jump: i8 = self.mem_read(self.program_counter) as i8;
+                let jump_addr = self
+                    .program_counter
+                    .wrapping_add(1)
+                    .wrapping_add(jump as u16);
+
+                format!("{} ${:04X}", mnemonic, jump_addr)
+            }
             AddressingMode::NoneAddressing => {
                 format!("{}", mnemonic)
             }
@@ -106,8 +113,8 @@ impl CPU {
         let operand_display = self.format_operand(&opcode.mnemonic, &opcode.mode);
 
         format!(
-            "{:04X}  {:8} {: <9}        A:{:02X} X:{:02X} Y:{:02X} P:{:02X} SP:{:02X}",
-            pc,
+            "{:04X}  {:8}  {:<32}A:{:02X} X:{:02X} Y:{:02X} P:{:02X} SP:{:02X}",
+            pc - 1,
             instruction_bytes_str,
             operand_display,
             self.register_a,
