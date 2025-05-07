@@ -4,7 +4,7 @@ use crate::cpu::opcodes;
 use super::{cpu::AddressingMode, flags::StatusFlags, memory::Mem};
 
 impl CPU {
-    pub fn get_operand_address(&mut self, mode: &AddressingMode) -> u16 {
+    pub fn get_operand_address(&self, mode: &AddressingMode) -> u16 {
         match mode {
             AddressingMode::Immediate => self.program_counter,
 
@@ -68,12 +68,13 @@ impl CPU {
             }
 
             AddressingMode::NoneAddressing | _ => {
-                panic!("mode {:?} is not supported", mode);
+                // panic!("mode {:?} is not supported", mode);
+                0xff
             }
         }
     }
 
-    pub fn get_mode_return_value(&mut self, mode: &AddressingMode) -> u8 {
+    pub fn get_mode_return_value(&self, mode: &AddressingMode) -> u8 {
         let addr = self.get_operand_address(mode);
         let value = self.mem_read(addr);
         return value;
@@ -82,10 +83,10 @@ impl CPU {
     pub fn reset(&mut self) {
         self.register_a = 0;
         self.register_x = 0;
-        self.status = StatusFlags::UNUSED | StatusFlags::BREAK;
-        self.sp = 0xff;
+        self.status = StatusFlags::UNUSED | StatusFlags::INTERRUPT;
+        self.sp = 0xfd;
 
-        self.program_counter = self.mem_read_u16(0xFFFC);
+        self.program_counter = 0xC000 //self.mem_read_u16(0xFFFC);
     }
 
     pub fn run(&mut self) {
@@ -105,6 +106,8 @@ impl CPU {
             let opcode = opcodes::CODES_MAP
                 .get(&code)
                 .expect(&format!("OpCode {:x} is not recognized", code));
+
+            println!("{}", self.trace(&opcode));
 
             match code {
                 0xA9 | 0xA5 | 0xAD | 0xb5 | 0xbd | 0xb9 | 0xa1 | 0xb1 => self.lda(&opcode.mode),
