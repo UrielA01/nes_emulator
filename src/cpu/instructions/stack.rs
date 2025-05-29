@@ -20,7 +20,8 @@ impl CPU {
     }
 
     pub fn php(&mut self) {
-        self.push(self.status.bits());
+        let status_bits = self.status.bits();
+        self.push(status_bits);
     }
 
     pub fn pla(&mut self) {
