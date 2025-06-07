@@ -67,9 +67,11 @@ impl CPU {
                 deref
             }
 
-            AddressingMode::NoneAddressing | _ => {
-                // panic!("mode {:?} is not supported", mode);
-                0xff
+            // Do nothing really
+            AddressingMode::Relative | AddressingMode::Accumulator => 0xff,
+
+            AddressingMode::NoneAddressing => {
+                panic!("mode {:?} is not supported", mode);
             }
         }
     }
