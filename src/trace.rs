@@ -16,10 +16,10 @@ impl CPU {
     }
 
     fn format_operand(&self, mnemonic: &str, mode: &AddressingMode) -> String {
-        let pc = self.program_counter + 1;
+        let pc = self.program_counter;
         let final_addr = self.get_operand_address(mode);
         let final_addr_u8 = self.get_operand_address(mode) as u8;
-        let value = self.get_mode_return_value(mode);
+        let value: u8 = self.get_mode_return_value(mode);
         match mode {
             AddressingMode::Immediate => {
                 format!("{} #${:02X}", mnemonic, value)
@@ -30,14 +30,14 @@ impl CPU {
                 format!("{} ${:02X} = {:02X}", mnemonic, final_addr_u8, value)
             }
             AddressingMode::ZeroPage_X => {
-                let base_addr = self.mem_read(pc + 1);
+                let base_addr = self.mem_read(pc);
                 format!(
                     "{} ${:02X},X @ {:02X} = {:02X}",
                     mnemonic, base_addr, final_addr_u8, value
                 )
             }
             AddressingMode::ZeroPage_Y => {
-                let base_addr = self.mem_read(pc + 1);
+                let base_addr = self.mem_read(pc);
                 format!(
                     "{} ${:02X},Y @ {:02X} = {:02X}",
                     mnemonic, base_addr, final_addr_u8, value
@@ -68,9 +68,10 @@ impl CPU {
                 let base_addr = self.mem_read_u16(pc);
                 format!("{} (${:04X}) = {:04X}", mnemonic, base_addr, final_addr)
             }
+
             AddressingMode::Indirect_X => {
                 let base_addr = self.mem_read(pc);
-                let base_addr_with_x = self.mem_read(pc).wrapping_add(self.register_x);
+                let base_addr_with_x = base_addr.wrapping_add(self.register_x);
                 format!(
                     "{} (${:02X},X) @ {:02X} = {:04X} = {:02X}",
                     mnemonic, base_addr, base_addr_with_x, final_addr, value
@@ -78,7 +79,7 @@ impl CPU {
             }
             AddressingMode::Indirect_Y => {
                 let base_addr = self.mem_read(pc);
-                let base_addr_with_y = self.mem_read(pc).wrapping_add(self.register_y);
+                let base_addr_with_y = final_addr.wrapping_sub(self.register_y as u16);
 
                 format!(
                     "{} (${:02X}),Y = {:04X} @ {:04X} = {:02X}",
