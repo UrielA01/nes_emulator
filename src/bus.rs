@@ -37,8 +37,7 @@ impl Mem for Bus {
             }
             PPU_REGISTERS..=PPU_REGISTERS_MIRRORS_END => {
                 let _mirron_down_addr = addr & 0b00100000_00000111;
-                // todo!("Support PPU")
-                return 0xff;
+                todo!("Support PPU");
             }
             0x8000..=0xFFFF => self.read_prg_rom(addr),
 

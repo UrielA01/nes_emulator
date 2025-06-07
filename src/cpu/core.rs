@@ -88,7 +88,7 @@ impl CPU {
         self.status = StatusFlags::UNUSED | StatusFlags::INTERRUPT;
         self.sp = 0xfd;
 
-        self.program_counter = 0xC000 //self.mem_read_u16(0xFFFC);
+        self.program_counter = self.mem_read_u16(0xFFFC);
     }
 
     pub fn run(&mut self) {
@@ -109,7 +109,9 @@ impl CPU {
                 .get(&code)
                 .expect(&format!("OpCode {:x} is not recognized", code));
 
-            println!("{}", self.trace(&opcode));
+            // ------------ Uncomment for tracing ------------
+            // println!("{}", self.trace(&opcode));
+            // -----------------------------------------------
 
             match code {
                 0xA9 | 0xA5 | 0xAD | 0xb5 | 0xbd | 0xb9 | 0xa1 | 0xb1 => self.lda(&opcode.mode),
@@ -205,11 +207,6 @@ impl CPU {
 
             if original_program_counter == self.program_counter {
                 self.program_counter += (opcode.bytes - 1) as u16;
-            }
-
-            if self.program_counter == 0xC6BD {
-                println!("All 6502 opcodes are tested and pass");
-                break;
             }
         }
     }

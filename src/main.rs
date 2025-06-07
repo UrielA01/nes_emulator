@@ -51,15 +51,15 @@ fn main() {
     let mut rng = rand::rng();
 
     cpu.run_with_callback(move |cpu| {
-        // handle_user_input(cpu, &mut event_pump);
-        // cpu.mem_write(0xfe, rng.random_range(1..16));
+        handle_user_input(cpu, &mut event_pump);
+        cpu.mem_write(0xfe, rng.random_range(1..16));
 
-        // if read_screen_state(cpu, &mut screen_state) {
-        //     texture.update(None, &screen_state, 32 * 3).unwrap();
-        //     canvas.copy(&texture, None, None).unwrap();
-        //     canvas.present();
-        // }
+        if read_screen_state(cpu, &mut screen_state) {
+            texture.update(None, &screen_state, 32 * 3).unwrap();
+            canvas.copy(&texture, None, None).unwrap();
+            canvas.present();
+        }
 
-        // ::std::thread::sleep(std::time::Duration::new(0, 70_00));
+        ::std::thread::sleep(std::time::Duration::new(0, 70_00));
     });
 }
