@@ -17,6 +17,7 @@ pub enum AddressingMode {
     Indirect,
     Indirect_X,
     Indirect_Y,
+    Relative,
     NoneAddressing,
 }
 
@@ -36,9 +37,9 @@ impl CPU {
             register_a: 0,
             register_x: 0,
             register_y: 0,
-            status: StatusFlags::UNUSED | StatusFlags::BREAK,
+            status: StatusFlags::UNUSED | StatusFlags::INTERRUPT,
             program_counter: 0x8000,
-            sp: 0xff,
+            sp: 0xfd,
             bus,
         }
     }
@@ -53,7 +54,7 @@ impl Mem for CPU {
         self.bus.mem_write(addr, data)
     }
 
-    fn mem_read_u16(&mut self, pos: u16) -> u16 {
+    fn mem_read_u16(&self, pos: u16) -> u16 {
         self.bus.mem_read_u16(pos)
     }
 

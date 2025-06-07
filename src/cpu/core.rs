@@ -4,7 +4,7 @@ use crate::cpu::opcodes;
 use super::{cpu::AddressingMode, flags::StatusFlags, memory::Mem};
 
 impl CPU {
-    pub fn get_operand_address(&mut self, mode: &AddressingMode) -> u16 {
+    pub fn get_operand_address(&self, mode: &AddressingMode) -> u16 {
         match mode {
             AddressingMode::Immediate => self.program_counter,
 
@@ -54,26 +54,29 @@ impl CPU {
 
                 let ptr: u8 = (base as u8).wrapping_add(self.register_x);
                 let lo = self.mem_read(ptr as u16);
-                let hi = self.mem_read(ptr.wrapping_add(1) as u16);
+                let hi = self.mem_read((ptr.wrapping_add(1) & 0xFF) as u16);
                 (hi as u16) << 8 | (lo as u16)
             }
             AddressingMode::Indirect_Y => {
                 let base = self.mem_read(self.program_counter);
 
                 let lo = self.mem_read(base as u16);
-                let hi = self.mem_read((base as u8).wrapping_add(1) as u16);
+                let hi = self.mem_read((base.wrapping_add(1) & 0xFF) as u16);
                 let deref_base = (hi as u16) << 8 | (lo as u16);
                 let deref = deref_base.wrapping_add(self.register_y as u16);
                 deref
             }
 
-            AddressingMode::NoneAddressing | _ => {
+            // Do nothing really
+            AddressingMode::Relative | AddressingMode::Accumulator => 0xff,
+
+            AddressingMode::NoneAddressing => {
                 panic!("mode {:?} is not supported", mode);
             }
         }
     }
 
-    pub fn get_mode_return_value(&mut self, mode: &AddressingMode) -> u8 {
+    pub fn get_mode_return_value(&self, mode: &AddressingMode) -> u8 {
         let addr = self.get_operand_address(mode);
         let value = self.mem_read(addr);
         return value;
@@ -82,8 +85,8 @@ impl CPU {
     pub fn reset(&mut self) {
         self.register_a = 0;
         self.register_x = 0;
-        self.status = StatusFlags::UNUSED | StatusFlags::BREAK;
-        self.sp = 0xff;
+        self.status = StatusFlags::UNUSED | StatusFlags::INTERRUPT;
+        self.sp = 0xfd;
 
         self.program_counter = self.mem_read_u16(0xFFFC);
     }
@@ -105,6 +108,10 @@ impl CPU {
             let opcode = opcodes::CODES_MAP
                 .get(&code)
                 .expect(&format!("OpCode {:x} is not recognized", code));
+
+            // ------------ Uncomment for tracing ------------
+            // println!("{}", self.trace(&opcode));
+            // -----------------------------------------------
 
             match code {
                 0xA9 | 0xA5 | 0xAD | 0xb5 | 0xbd | 0xb9 | 0xa1 | 0xb1 => self.lda(&opcode.mode),
@@ -147,6 +154,7 @@ impl CPU {
                 0x4c | 0x6c => self.jmp(&opcode.mode),
                 0x20 => self.jsr(&opcode.mode),
                 0x60 => self.rts(),
+                0x40 => self.rti(),
 
                 0x29 | 0x25 | 0x35 | 0x2d | 0x3d | 0x39 | 0x21 | 0x31 => self.and(&opcode.mode),
 

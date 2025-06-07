@@ -13,6 +13,7 @@ pub mod bus;
 pub mod cpu;
 pub mod rom;
 pub mod sdl;
+pub mod trace;
 
 fn main() {
     const WINDOW_HEIGHT: u32 = (32.0 * 10.0) as u32;

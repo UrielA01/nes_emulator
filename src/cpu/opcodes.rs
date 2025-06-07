@@ -277,6 +277,8 @@ static CPU_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
         OpCode::new(0x20, "JSR", 3, 6, AddressingMode::Absolute),
         // RTS
         OpCode::new(0x60, "RTS", 1, 6, AddressingMode::Implied),
+        // RTI
+        OpCode::new(0x40, "RTI", 1, 6, AddressingMode::Implied),
         // Clear flags
         OpCode::new(0x18, "CLC", 1, 2, AddressingMode::Implied),
         OpCode::new(0xD8, "CLD", 1, 2, AddressingMode::Implied),
@@ -302,56 +304,56 @@ static CPU_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
             "BNE",
             2,
             2, /*(+1 if branch succeeds +2 if to a new page)*/
-            AddressingMode::NoneAddressing,
+            AddressingMode::Relative,
         ),
         OpCode::new(
             0x70,
             "BVS",
             2,
             2, /*(+1 if branch succeeds +2 if to a new page)*/
-            AddressingMode::NoneAddressing,
+            AddressingMode::Relative,
         ),
         OpCode::new(
             0x50,
             "BVC",
             2,
             2, /*(+1 if branch succeeds +2 if to a new page)*/
-            AddressingMode::NoneAddressing,
+            AddressingMode::Relative,
         ),
         OpCode::new(
             0x30,
             "BMI",
             2,
             2, /*(+1 if branch succeeds +2 if to a new page)*/
-            AddressingMode::NoneAddressing,
+            AddressingMode::Relative,
         ),
         OpCode::new(
             0xf0,
             "BEQ",
             2,
             2, /*(+1 if branch succeeds +2 if to a new page)*/
-            AddressingMode::NoneAddressing,
+            AddressingMode::Relative,
         ),
         OpCode::new(
             0xb0,
             "BCS",
             2,
             2, /*(+1 if branch succeeds +2 if to a new page)*/
-            AddressingMode::NoneAddressing,
+            AddressingMode::Relative,
         ),
         OpCode::new(
             0x90,
             "BCC",
             2,
             2, /*(+1 if branch succeeds +2 if to a new page)*/
-            AddressingMode::NoneAddressing,
+            AddressingMode::Relative,
         ),
         OpCode::new(
             0x10,
             "BPL",
             2,
             2, /*(+1 if branch succeeds +2 if to a new page)*/
-            AddressingMode::NoneAddressing,
+            AddressingMode::Relative,
         ),
     ]
 });

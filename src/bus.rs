@@ -18,13 +18,13 @@ impl Bus {
         }
     }
 
-    fn read_prg_rom(&self, mut addr: u16) -> u8 {
-        addr -= 0x8000;
-        if self.rom.prg_rom.len() == 0x4000 && addr >= 0x4000 {
+    fn read_prg_rom(&self, addr: u16) -> u8 {
+        let mut mapped_addr = (addr - 0x8000) as usize;
+        if self.rom.prg_rom.len() == 0x4000 {
             // Mirror is needed
-            addr = addr % 0x4000;
+            mapped_addr %= 0x4000;
         }
-        self.rom.prg_rom[addr as usize]
+        self.rom.prg_rom[mapped_addr]
     }
 }
 
@@ -37,7 +37,7 @@ impl Mem for Bus {
             }
             PPU_REGISTERS..=PPU_REGISTERS_MIRRORS_END => {
                 let _mirron_down_addr = addr & 0b00100000_00000111;
-                todo!("Support PPU")
+                todo!("Support PPU");
             }
             0x8000..=0xFFFF => self.read_prg_rom(addr),
 

@@ -20,7 +20,9 @@ impl CPU {
     }
 
     pub fn php(&mut self) {
-        self.push(self.status.bits());
+        let status_bits = self.status.bits();
+        const FLAG_UNUSED: u8 = 0b0011_0000;
+        self.push(status_bits | FLAG_UNUSED);
     }
 
     pub fn pla(&mut self) {
@@ -29,7 +31,9 @@ impl CPU {
     }
 
     pub fn plp(&mut self) {
-        self.status = StatusFlags::from_bits_truncate(self.pop());
+        let stack_value = self.pop();
+        let adjusted_bits = (stack_value & !0b00010000) | 0b00100000; // Clear B, set unused
+        self.status = StatusFlags::from_bits_truncate(adjusted_bits);
     }
 
     pub fn txs(&mut self) {
