@@ -277,6 +277,8 @@ static CPU_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
         OpCode::new(0x20, "JSR", 3, 6, AddressingMode::Absolute),
         // RTS
         OpCode::new(0x60, "RTS", 1, 6, AddressingMode::Implied),
+        // RTI
+        OpCode::new(0x40, "RTI", 1, 6, AddressingMode::Implied),
         // Clear flags
         OpCode::new(0x18, "CLC", 1, 2, AddressingMode::Implied),
         OpCode::new(0xD8, "CLD", 1, 2, AddressingMode::Implied),

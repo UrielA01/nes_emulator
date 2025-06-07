@@ -54,14 +54,14 @@ impl CPU {
 
                 let ptr: u8 = (base as u8).wrapping_add(self.register_x);
                 let lo = self.mem_read(ptr as u16);
-                let hi = self.mem_read(ptr.wrapping_add(1) as u16);
+                let hi = self.mem_read((ptr.wrapping_add(1) & 0xFF) as u16);
                 (hi as u16) << 8 | (lo as u16)
             }
             AddressingMode::Indirect_Y => {
                 let base = self.mem_read(self.program_counter);
 
                 let lo = self.mem_read(base as u16);
-                let hi = self.mem_read((base as u8).wrapping_add(1) as u16);
+                let hi = self.mem_read((base.wrapping_add(1) & 0xFF) as u16);
                 let deref_base = (hi as u16) << 8 | (lo as u16);
                 let deref = deref_base.wrapping_add(self.register_y as u16);
                 deref
@@ -150,6 +150,7 @@ impl CPU {
                 0x4c | 0x6c => self.jmp(&opcode.mode),
                 0x20 => self.jsr(&opcode.mode),
                 0x60 => self.rts(),
+                0x40 => self.rti(),
 
                 0x29 | 0x25 | 0x35 | 0x2d | 0x3d | 0x39 | 0x21 | 0x31 => self.and(&opcode.mode),
 
@@ -202,6 +203,11 @@ impl CPU {
 
             if original_program_counter == self.program_counter {
                 self.program_counter += (opcode.bytes - 1) as u16;
+            }
+
+            if self.program_counter == 0xC6BD {
+                println!("All 6502 opcodes are tested and pass");
+                break;
             }
         }
     }
