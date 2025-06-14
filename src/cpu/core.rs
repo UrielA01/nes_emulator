@@ -204,6 +204,19 @@ impl CPU {
 
                 0x1a | 0x3a | 0x5a | 0x7a | 0xda | 0xfa => { /* Unofficial NOPs */ }
 
+                /* Double NOP - DOP */
+                0x04 | 0x14 | 0x34 | 0x44 | 0x54 | 0x64 | 0x74 | 0x80 | 0x82 | 0x89 | 0xc2
+                | 0xd4 | 0xe2 | 0xf4 => {
+                    let addr = self.get_operand_address(&opcode.mode);
+                    let _data = self.mem_read(addr);
+                }
+
+                /* Triple NOP - TOP */
+                0x0c | 0x1c | 0x3c | 0x5c | 0x7c | 0xdc | 0xfc => {
+                    let addr = self.get_operand_address(&opcode.mode);
+                    let _data = self.mem_read(addr);
+                }
+
                 _ => todo!(),
             }
 
