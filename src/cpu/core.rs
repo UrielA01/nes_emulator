@@ -202,6 +202,8 @@ impl CPU {
 
                 0xea => {}
 
+                0x1a | 0x3a | 0x5a | 0x7a | 0xda | 0xfa => { /* Unofficial NOPs */ }
+
                 _ => todo!(),
             }
 
