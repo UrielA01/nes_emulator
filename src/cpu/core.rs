@@ -228,6 +228,8 @@ impl CPU {
 
                 0x87 | 0x97 | 0x8f | 0x83 => self.sax(&opcode.mode),
 
+                0xcb => self.axs(&opcode.mode),
+
                 _ => todo!(),
             }
 
