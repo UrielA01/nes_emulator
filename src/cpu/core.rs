@@ -232,6 +232,8 @@ impl CPU {
 
                 0xa7 | 0xb7 | 0xaf | 0xbf | 0xa3 | 0xb3 => self.lax(&opcode.mode),
 
+                0x4b => self.alr(&opcode.mode),
+
                 _ => todo!(),
             }
 

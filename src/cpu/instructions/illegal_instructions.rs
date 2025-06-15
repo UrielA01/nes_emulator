@@ -31,6 +31,11 @@ impl CPU {
         self.lda(&mode);
         self.ldx(&mode);
     }
+
+    pub fn alr(&mut self, mode: &AddressingMode) {
+        self.and(&mode);
+        self.lsr(&AddressingMode::Accumulator);
+    }
 }
 
 #[cfg(test)]
@@ -106,5 +111,22 @@ mod test {
 
         assert_eq!(cpu.register_x, 0x25);
         assert_eq!(cpu.register_a, 0x25);
+    }
+
+    #[test]
+    fn test_alr_logical_and_then_lsr() {
+        let mut cpu = CPU::test_new();
+
+        cpu.load_and_run(vec![
+            0xa9,
+            0b1111_0001, // LDA #$F1
+            0x4b,
+            0b1100_1100, // ALR #$CC → A & $CC = 0b1100_0000 → LSR = 0b0110_0000
+        ]);
+
+        assert_eq!(cpu.register_a, 0b0110_0000);
+        assert!(!cpu.status.contains(StatusFlags::CARRY)); // original bit 0 was 0
+        assert!(!cpu.status.contains(StatusFlags::NEGATIVE));
+        assert!(!cpu.status.contains(StatusFlags::ZERO));
     }
 }
