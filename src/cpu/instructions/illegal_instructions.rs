@@ -26,6 +26,11 @@ impl CPU {
         self.update_zero_and_negative_flags(result);
         self.register_x = result;
     }
+
+    pub fn lax(&mut self, mode: &AddressingMode) {
+        self.lda(&mode);
+        self.ldx(&mode);
+    }
 }
 
 #[cfg(test)]
@@ -85,5 +90,21 @@ mod test {
         assert!(cpu.status.contains(StatusFlags::ZERO));
         assert!(!cpu.status.contains(StatusFlags::NEGATIVE));
         assert!(cpu.status.contains(StatusFlags::CARRY)); // 0x88 >= 0x88
+    }
+
+    #[test]
+    fn test_lax_zp() {
+        let mut cpu = CPU::test_new();
+
+        cpu.mem_write(0x0200, 0xa7); // LAX ZP
+        cpu.mem_write(0x0201, 0x0a); // Address $0a
+        cpu.mem_write(0x0a, 0x25);
+
+        cpu.program_counter = 0x0200; // can't write to 0x8000
+
+        cpu.run();
+
+        assert_eq!(cpu.register_x, 0x25);
+        assert_eq!(cpu.register_a, 0x25);
     }
 }

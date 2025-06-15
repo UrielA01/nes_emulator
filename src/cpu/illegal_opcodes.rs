@@ -5,6 +5,10 @@ use crate::cpu::opcodes::OpCode;
 
 use super::cpu::AddressingMode;
 
+/* Useful links -
+https://www.nesdev.org/wiki/Programming_with_unofficial_opcodes
+https://www.nesdev.org/undocumented_opcodes.txt */
+
 static CPU_ILLEGAL_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
     vec![
         /* Do nothing NOPs */
@@ -49,14 +53,24 @@ static CPU_ILLEGAL_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
             4, /* or 5*/
             AddressingMode::Absolute_X,
         ),
-        /* Combined operations - https://www.nesdev.org/wiki/Programming_with_unofficial_opcodes */
+        /* Combined operations */
+        // ANC
         OpCode::new(0x0b, "*ANC", 2, 2, AddressingMode::Immediate),
         OpCode::new(0x2b, "*ANC", 2, 2, AddressingMode::Immediate),
+        // SAX
         OpCode::new(0x87, "*SAX", 2, 3, AddressingMode::ZeroPage),
         OpCode::new(0x97, "*SAX", 2, 4, AddressingMode::ZeroPage_Y),
         OpCode::new(0x8f, "*SAX", 3, 4, AddressingMode::Absolute),
         OpCode::new(0x83, "*SAX", 2, 6, AddressingMode::Indirect_X),
+        // AXS
         OpCode::new(0xCB, "*AXS", 2, 2, AddressingMode::Immediate),
+        // LAX
+        OpCode::new(0xa7, "*LAX", 2, 3, AddressingMode::ZeroPage),
+        OpCode::new(0xb7, "*LAX", 2, 4, AddressingMode::ZeroPage_Y),
+        OpCode::new(0xaf, "*LAX", 3, 4, AddressingMode::Absolute),
+        OpCode::new(0xbf, "*LAX", 3, 4, AddressingMode::Absolute_Y),
+        OpCode::new(0xa3, "*LAX", 2, 6, AddressingMode::Indirect_X),
+        OpCode::new(0xb3, "*LAX", 2, 5, AddressingMode::Indirect_Y),
     ]
 });
 
