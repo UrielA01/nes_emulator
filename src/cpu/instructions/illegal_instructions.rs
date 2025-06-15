@@ -36,6 +36,18 @@ impl CPU {
         self.and(&mode);
         self.lsr(&AddressingMode::Accumulator);
     }
+
+    pub fn arr(&mut self, mode: &AddressingMode) {
+        self.and(&mode);
+        self.ror(&AddressingMode::Accumulator);
+        let result = self.register_a;
+        let bit_5 = (result >> 5) & 1;
+        let bit_6 = (result >> 6) & 1;
+        self.status.set(StatusFlags::CARRY, bit_6 == 1);
+        self.status.set(StatusFlags::OVERFLOW, (bit_5 ^ bit_6) == 1);
+
+        self.update_zero_and_negative_flags(result);
+    }
 }
 
 #[cfg(test)]
@@ -114,7 +126,7 @@ mod test {
     }
 
     #[test]
-    fn test_alr_logical_and_then_lsr() {
+    fn test_alr() {
         let mut cpu = CPU::test_new();
 
         cpu.load_and_run(vec![
@@ -126,6 +138,24 @@ mod test {
 
         assert_eq!(cpu.register_a, 0b0110_0000);
         assert!(!cpu.status.contains(StatusFlags::CARRY)); // original bit 0 was 0
+        assert!(!cpu.status.contains(StatusFlags::NEGATIVE));
+        assert!(!cpu.status.contains(StatusFlags::ZERO));
+    }
+
+    #[test]
+    fn test_arr_and_then_ror() {
+        let mut cpu = CPU::test_new();
+
+        cpu.load_and_run(vec![
+            0xa9,
+            0b1100_0001, // LDA #$C1
+            0x6b,
+            0b1111_0000, // ARR #$F0 → A & $F0 = 0b1100_0000 → ROR = 0110_0000
+        ]);
+
+        assert_eq!(cpu.register_a, 0b0110_0000);
+        assert!(cpu.status.contains(StatusFlags::CARRY)); // bit 6 = 1
+        assert!(!cpu.status.contains(StatusFlags::OVERFLOW)); // Bit 5 and 6 are the same
         assert!(!cpu.status.contains(StatusFlags::NEGATIVE));
         assert!(!cpu.status.contains(StatusFlags::ZERO));
     }

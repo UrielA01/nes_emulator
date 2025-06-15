@@ -234,6 +234,8 @@ impl CPU {
 
                 0x4b => self.alr(&opcode.mode),
 
+                0x6b => self.arr(&opcode.mode),
+
                 _ => todo!(),
             }
 
