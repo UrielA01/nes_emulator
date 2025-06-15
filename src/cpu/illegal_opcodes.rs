@@ -49,9 +49,13 @@ static CPU_ILLEGAL_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
             4, /* or 5*/
             AddressingMode::Absolute_X,
         ),
-        /* Combined operations */
+        /* Combined operations - https://www.nesdev.org/wiki/Programming_with_unofficial_opcodes */
         OpCode::new(0x0b, "*ANC", 2, 2, AddressingMode::Immediate),
         OpCode::new(0x2b, "*ANC", 2, 2, AddressingMode::Immediate),
+        OpCode::new(0x87, "*SAX", 2, 3, AddressingMode::ZeroPage),
+        OpCode::new(0x97, "*SAX", 2, 4, AddressingMode::ZeroPage_Y),
+        OpCode::new(0x8f, "*SAX", 3, 4, AddressingMode::Absolute),
+        OpCode::new(0x83, "*SAX", 2, 6, AddressingMode::Indirect_X),
     ]
 });
 
