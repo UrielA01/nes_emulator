@@ -1,5 +1,5 @@
-use crate::cpu::cpu::CPU;
 use crate::cpu::opcodes;
+use crate::cpu::{cpu::CPU, illegal_opcodes::ILLEGAL_CODES_MAP};
 
 use super::{cpu::AddressingMode, flags::StatusFlags, memory::Mem};
 
@@ -105,9 +105,15 @@ impl CPU {
             self.program_counter += 1;
             let original_program_counter = self.program_counter;
 
-            let opcode = opcodes::CODES_MAP
-                .get(&code)
-                .expect(&format!("OpCode {:x} is not recognized", code));
+            let legal_opcode = opcodes::CODES_MAP.get(&code);
+
+            let opcode = match legal_opcode {
+                Some(opcode) => opcode,
+                None => ILLEGAL_CODES_MAP.get(&code).expect(&format!(
+                    "OpCode {:x} is nor legal or illegal opcode!",
+                    code
+                )),
+            };
 
             // ------------ Uncomment for tracing ------------
             // println!("{}", self.trace(&opcode));
@@ -202,6 +208,7 @@ impl CPU {
 
                 0xea => {}
 
+                // Undocumented from here
                 0x1a | 0x3a | 0x5a | 0x7a | 0xda | 0xfa => { /* Unofficial NOPs */ }
 
                 /* Double NOP - DOP */
@@ -217,6 +224,9 @@ impl CPU {
                     let _data = self.mem_read(addr);
                 }
 
+                0x0b | 0x2b => self.anc(&opcode.mode),
+
+                //
                 _ => todo!(),
             }
 

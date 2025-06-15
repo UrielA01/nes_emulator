@@ -2,6 +2,7 @@ mod arithmetic;
 mod bitwise;
 mod branches;
 mod flow_control;
+mod illegal_instructions;
 mod inc_dec;
 mod load_store;
 mod register_transfers;

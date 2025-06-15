@@ -49,6 +49,9 @@ static CPU_ILLEGAL_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
             4, /* or 5*/
             AddressingMode::Absolute_X,
         ),
+        /* Combined operations */
+        OpCode::new(0x0b, "*ANC", 2, 2, AddressingMode::Immediate),
+        OpCode::new(0x2b, "*ANC", 2, 2, AddressingMode::Immediate),
     ]
 });
 
