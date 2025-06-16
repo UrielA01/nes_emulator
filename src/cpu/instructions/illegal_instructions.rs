@@ -53,6 +53,16 @@ impl CPU {
         self.inc(&mode);
         self.sbc(&mode);
     }
+
+    pub fn rla(&mut self, mode: &AddressingMode) {
+        self.rol(&mode);
+        self.and(&mode);
+    }
+
+    pub fn rra(&mut self, mode: &AddressingMode) {
+        self.ror(&mode);
+        self.adc(&mode);
+    }
 }
 
 #[cfg(test)]

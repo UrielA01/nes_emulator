@@ -84,6 +84,22 @@ static CPU_ILLEGAL_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
         OpCode::new(0xfb, "*ISB", 3, 7, AddressingMode::Absolute_Y),
         OpCode::new(0xe3, "*ISB", 2, 8, AddressingMode::Indirect_X),
         OpCode::new(0xf3, "*ISB", 2, 8, AddressingMode::Indirect_Y),
+        // RLA
+        OpCode::new(0x27, "*RLA", 2, 5, AddressingMode::ZeroPage),
+        OpCode::new(0x37, "*RLA", 2, 6, AddressingMode::ZeroPage_X),
+        OpCode::new(0x2F, "*RLA", 3, 6, AddressingMode::Absolute),
+        OpCode::new(0x3F, "*RLA", 3, 7, AddressingMode::Absolute_X),
+        OpCode::new(0x3b, "*RLA", 3, 7, AddressingMode::Absolute_Y),
+        OpCode::new(0x33, "*RLA", 2, 8, AddressingMode::Indirect_Y),
+        OpCode::new(0x23, "*RLA", 2, 8, AddressingMode::Indirect_X),
+        // RRA
+        OpCode::new(0x67, "*RRA", 2, 5, AddressingMode::ZeroPage),
+        OpCode::new(0x77, "*RRA", 2, 6, AddressingMode::ZeroPage_X),
+        OpCode::new(0x6f, "*RRA", 3, 6, AddressingMode::Absolute),
+        OpCode::new(0x7f, "*RRA", 3, 7, AddressingMode::Absolute_X),
+        OpCode::new(0x7b, "*RRA", 3, 7, AddressingMode::Absolute_Y),
+        OpCode::new(0x63, "*RRA", 2, 8, AddressingMode::Indirect_X),
+        OpCode::new(0x73, "*RRA", 2, 8, AddressingMode::Indirect_Y),
     ]
 });
 
