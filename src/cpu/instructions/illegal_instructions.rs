@@ -48,6 +48,11 @@ impl CPU {
 
         self.update_zero_and_negative_flags(result);
     }
+
+    pub fn isb(&mut self, mode: &AddressingMode) {
+        self.inc(&mode);
+        self.sbc(&mode);
+    }
 }
 
 #[cfg(test)]

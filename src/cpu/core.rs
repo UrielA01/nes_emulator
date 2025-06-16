@@ -224,6 +224,7 @@ impl CPU {
                     let _data = self.mem_read(addr);
                 }
 
+                /* Combined operations */
                 0x0b | 0x2b => self.anc(&opcode.mode),
 
                 0x87 | 0x97 | 0x8f | 0x83 => self.sax(&opcode.mode),
@@ -235,6 +236,9 @@ impl CPU {
                 0x4b => self.alr(&opcode.mode),
 
                 0x6b => self.arr(&opcode.mode),
+
+                /* RMW instructions */
+                0xe7 | 0xf7 | 0xef | 0xff | 0xfb | 0xe3 | 0xf3 => self.isb(&opcode.mode),
 
                 _ => todo!(),
             }
