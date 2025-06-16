@@ -68,6 +68,11 @@ impl CPU {
         self.asl(&mode);
         self.ora(&mode);
     }
+
+    pub fn sre(&mut self, mode: &AddressingMode) {
+        self.lsr(&mode);
+        self.eor(&mode);
+    }
 }
 
 #[cfg(test)]
