@@ -250,6 +250,9 @@ impl CPU {
 
                 0xc7 | 0xd7 | 0xCF | 0xdF | 0xdb | 0xd3 | 0xc3 => self.dcp(&opcode.mode),
 
+                // Duplicate sbc
+                0xeb => self.sbc(&opcode.mode),
+
                 _ => todo!(),
             }
 

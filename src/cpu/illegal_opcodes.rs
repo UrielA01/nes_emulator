@@ -124,6 +124,8 @@ static CPU_ILLEGAL_OPS_CODES: Lazy<Vec<OpCode>> = Lazy::new(|| {
         OpCode::new(0xdb, "*DCP", 3, 7, AddressingMode::Absolute_Y),
         OpCode::new(0xd3, "*DCP", 2, 8, AddressingMode::Indirect_Y),
         OpCode::new(0xc3, "*DCP", 2, 8, AddressingMode::Indirect_X),
+        // Duplicate sbc
+        OpCode::new(0xeb, "*SBC", 2, 2, AddressingMode::Immediate),
     ]
 });
 
