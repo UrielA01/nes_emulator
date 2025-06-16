@@ -63,6 +63,11 @@ impl CPU {
         self.ror(&mode);
         self.adc(&mode);
     }
+
+    pub fn slo(&mut self, mode: &AddressingMode) {
+        self.asl(&mode);
+        self.ora(&mode);
+    }
 }
 
 #[cfg(test)]
