@@ -73,6 +73,11 @@ impl CPU {
         self.lsr(&mode);
         self.eor(&mode);
     }
+
+    pub fn dcp(&mut self, mode: &AddressingMode) {
+        self.dec(&mode);
+        self.cmp(&mode);
+    }
 }
 
 #[cfg(test)]
