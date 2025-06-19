@@ -15,7 +15,6 @@ impl CPU {
         let address = self.get_operand_address(&mode);
         let result = self.register_a & self.register_x;
         self.mem_write(address, result);
-        self.update_zero_and_negative_flags(result);
     }
 
     pub fn axs(&mut self, mode: &AddressingMode) {
