@@ -1,5 +1,5 @@
-use crate::cpu::cpu::CPU;
 use crate::cpu::opcodes;
+use crate::cpu::{cpu::CPU, illegal_opcodes::ILLEGAL_CODES_MAP};
 
 use super::{cpu::AddressingMode, flags::StatusFlags, memory::Mem};
 
@@ -105,9 +105,15 @@ impl CPU {
             self.program_counter += 1;
             let original_program_counter = self.program_counter;
 
-            let opcode = opcodes::CODES_MAP
-                .get(&code)
-                .expect(&format!("OpCode {:x} is not recognized", code));
+            let legal_opcode = opcodes::CODES_MAP.get(&code);
+
+            let opcode = match legal_opcode {
+                Some(opcode) => opcode,
+                None => ILLEGAL_CODES_MAP.get(&code).expect(&format!(
+                    "OpCode {:x} is nor legal or illegal opcode!",
+                    code
+                )),
+            };
 
             // ------------ Uncomment for tracing ------------
             // println!("{}", self.trace(&opcode));
@@ -201,6 +207,51 @@ impl CPU {
                 0x00 => return,
 
                 0xea => {}
+
+                // Undocumented from here
+                0x1a | 0x3a | 0x5a | 0x7a | 0xda | 0xfa => { /* Unofficial NOPs */ }
+
+                /* Double NOP - DOP */
+                0x04 | 0x14 | 0x34 | 0x44 | 0x54 | 0x64 | 0x74 | 0x80 | 0x82 | 0x89 | 0xc2
+                | 0xd4 | 0xe2 | 0xf4 => {
+                    let addr = self.get_operand_address(&opcode.mode);
+                    let _data = self.mem_read(addr);
+                }
+
+                /* Triple NOP - TOP */
+                0x0c | 0x1c | 0x3c | 0x5c | 0x7c | 0xdc | 0xfc => {
+                    let addr = self.get_operand_address(&opcode.mode);
+                    let _data = self.mem_read(addr);
+                }
+
+                /* Combined operations */
+                0x0b | 0x2b => self.anc(&opcode.mode),
+
+                0x87 | 0x97 | 0x8f | 0x83 => self.sax(&opcode.mode),
+
+                0xcb => self.axs(&opcode.mode),
+
+                0xa7 | 0xb7 | 0xaf | 0xbf | 0xa3 | 0xb3 => self.lax(&opcode.mode),
+
+                0x4b => self.alr(&opcode.mode),
+
+                0x6b => self.arr(&opcode.mode),
+
+                /* RMW instructions */
+                0xe7 | 0xf7 | 0xef | 0xff | 0xfb | 0xe3 | 0xf3 => self.isb(&opcode.mode),
+
+                0x27 | 0x37 | 0x2F | 0x3F | 0x3b | 0x33 | 0x23 => self.rla(&opcode.mode),
+
+                0x67 | 0x77 | 0x6f | 0x7f | 0x7b | 0x63 | 0x73 => self.rra(&opcode.mode),
+
+                0x07 | 0x17 | 0x0F | 0x1f | 0x1b | 0x03 | 0x13 => self.slo(&opcode.mode),
+
+                0x47 | 0x57 | 0x4F | 0x5f | 0x5b | 0x43 | 0x53 => self.sre(&opcode.mode),
+
+                0xc7 | 0xd7 | 0xCF | 0xdF | 0xdb | 0xd3 | 0xc3 => self.dcp(&opcode.mode),
+
+                // Duplicate sbc
+                0xeb => self.sbc(&opcode.mode),
 
                 _ => todo!(),
             }

@@ -1,7 +1,7 @@
 use crate::cpu::{
     cpu::{AddressingMode, CPU},
     memory::Mem,
-    opcodes::OpCode,
+    opcodes::{OpCode},
 };
 
 impl CPU {
@@ -113,16 +113,26 @@ impl CPU {
 
         let operand_display = self.format_operand(&opcode.mnemonic, &opcode.mode);
 
-        format!(
-            "{:04X}  {:8}  {:<32}A:{:02X} X:{:02X} Y:{:02X} P:{:02X} SP:{:02X}",
+        let is_illegal = operand_display.starts_with('*');
+
+        // Adjust the number of spaces based on whether it’s an illegal opcode
+        let spaces_after_bytes = if is_illegal { " " } else { "  " };
+        let space_before_registers = if is_illegal { "  " } else { " " };
+
+        let final_trace = format!(
+            "{:04X}  {:<8}{}{: <31}{}A:{:02X} X:{:02X} Y:{:02X} P:{:02X} SP:{:02X}",
             pc - 1,
             instruction_bytes_str,
+            spaces_after_bytes,
             operand_display,
+            space_before_registers,
             self.register_a,
             self.register_x,
             self.register_y,
             self.status,
             self.sp,
-        )
+        );
+
+        final_trace
     }
 }

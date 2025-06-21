@@ -46,6 +46,13 @@ impl CPU {
         self.status.set(StatusFlags::CARRY, result > 0xFF);
     }
 
+    pub fn update_carry_axs(&mut self, result: u8) {
+        self.status.set(
+            StatusFlags::CARRY,
+            self.register_x & self.register_a >= result,
+        );
+    }
+
     #[allow(dead_code)]
     fn update_carry_sbc(&mut self, result: u16) {
         self.status.set(StatusFlags::CARRY, result < 0x100);
