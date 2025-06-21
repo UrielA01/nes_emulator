@@ -48,16 +48,16 @@ impl Mem for Bus {
             }
             PPU_REGISTERS..=PPU_REGISTERS_MIRRORS_END => {
                 let _mirron_down_addr = addr & 0b00100000_00000111;
-                // todo!("Support PPU");
-                0xff
+                todo!("Support PPU");
+                // 0xff
             }
             PRG_ROM_START..=PRG_ROM_END => self.read_prg_rom(addr),
 
             APU_IO_REGISTERS..=APU_IO_REGISTERS_END => {
                 // For now, stub it out safely
                 // Eventually you can emulate APU or controller
-                // todo!("Support APU");
-                0xff
+                todo!("Support APU");
+                // 0xff
             }
 
             _ => {
@@ -83,7 +83,7 @@ impl Mem for Bus {
             APU_IO_REGISTERS..=APU_IO_REGISTERS_END => {
                 // println!("Write to APU or IO: {:04X} <- {:02X}", addr, data);
                 // Eventually implement APU and controller behavior here
-                // todo!("Support APU");
+                todo!("Support APU");
             }
             _ => {
                 println!("Ignoring mem write-access at {}", addr);
