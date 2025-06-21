@@ -13,9 +13,9 @@ impl CPU {
         let value = self.get_mode_return_value(mode);
 
         let result = match gate {
-            LogicalGate::AND => self.register_a & value,
-            LogicalGate::OR => self.register_a | value,
-            LogicalGate::XOR => self.register_a ^ value,
+            LogicalGate::AND => value & self.register_a,
+            LogicalGate::OR => value | self.register_a,
+            LogicalGate::XOR => value ^ self.register_a,
         };
 
         self.register_a = result;

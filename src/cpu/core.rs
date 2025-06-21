@@ -1,10 +1,10 @@
-use crate::cpu::cpu::CPU;
 use crate::cpu::opcodes;
+use crate::cpu::{cpu::CPU, illegal_opcodes::ILLEGAL_CODES_MAP};
 
 use super::{cpu::AddressingMode, flags::StatusFlags, memory::Mem};
 
 impl CPU {
-    pub fn get_operand_address(&mut self, mode: &AddressingMode) -> u16 {
+    pub fn get_operand_address(&self, mode: &AddressingMode) -> u16 {
         match mode {
             AddressingMode::Immediate => self.program_counter,
 
@@ -54,26 +54,29 @@ impl CPU {
 
                 let ptr: u8 = (base as u8).wrapping_add(self.register_x);
                 let lo = self.mem_read(ptr as u16);
-                let hi = self.mem_read(ptr.wrapping_add(1) as u16);
+                let hi = self.mem_read((ptr.wrapping_add(1) & 0xFF) as u16);
                 (hi as u16) << 8 | (lo as u16)
             }
             AddressingMode::Indirect_Y => {
                 let base = self.mem_read(self.program_counter);
 
                 let lo = self.mem_read(base as u16);
-                let hi = self.mem_read((base as u8).wrapping_add(1) as u16);
+                let hi = self.mem_read((base.wrapping_add(1) & 0xFF) as u16);
                 let deref_base = (hi as u16) << 8 | (lo as u16);
                 let deref = deref_base.wrapping_add(self.register_y as u16);
                 deref
             }
 
-            AddressingMode::NoneAddressing | _ => {
+            // Do nothing really
+            AddressingMode::Relative | AddressingMode::Accumulator => 0xff,
+
+            AddressingMode::NoneAddressing => {
                 panic!("mode {:?} is not supported", mode);
             }
         }
     }
 
-    pub fn get_mode_return_value(&mut self, mode: &AddressingMode) -> u8 {
+    pub fn get_mode_return_value(&self, mode: &AddressingMode) -> u8 {
         let addr = self.get_operand_address(mode);
         let value = self.mem_read(addr);
         return value;
@@ -82,8 +85,8 @@ impl CPU {
     pub fn reset(&mut self) {
         self.register_a = 0;
         self.register_x = 0;
-        self.status = StatusFlags::UNUSED | StatusFlags::BREAK;
-        self.sp = 0xff;
+        self.status = StatusFlags::UNUSED | StatusFlags::INTERRUPT;
+        self.sp = 0xfd;
 
         self.program_counter = self.mem_read_u16(0xFFFC);
     }
@@ -102,9 +105,19 @@ impl CPU {
             self.program_counter += 1;
             let original_program_counter = self.program_counter;
 
-            let opcode = opcodes::CODES_MAP
-                .get(&code)
-                .expect(&format!("OpCode {:x} is not recognized", code));
+            let legal_opcode = opcodes::CODES_MAP.get(&code);
+
+            let opcode = match legal_opcode {
+                Some(opcode) => opcode,
+                None => ILLEGAL_CODES_MAP.get(&code).expect(&format!(
+                    "OpCode {:x} is nor legal or illegal opcode!",
+                    code
+                )),
+            };
+
+            // ------------ Uncomment for tracing ------------
+            // println!("{}", self.trace(&opcode));
+            // -----------------------------------------------
 
             match code {
                 0xA9 | 0xA5 | 0xAD | 0xb5 | 0xbd | 0xb9 | 0xa1 | 0xb1 => self.lda(&opcode.mode),
@@ -147,6 +160,7 @@ impl CPU {
                 0x4c | 0x6c => self.jmp(&opcode.mode),
                 0x20 => self.jsr(&opcode.mode),
                 0x60 => self.rts(),
+                0x40 => self.rti(),
 
                 0x29 | 0x25 | 0x35 | 0x2d | 0x3d | 0x39 | 0x21 | 0x31 => self.and(&opcode.mode),
 
@@ -193,6 +207,51 @@ impl CPU {
                 0x00 => return,
 
                 0xea => {}
+
+                // Undocumented from here
+                0x1a | 0x3a | 0x5a | 0x7a | 0xda | 0xfa => { /* Unofficial NOPs */ }
+
+                /* Double NOP - DOP */
+                0x04 | 0x14 | 0x34 | 0x44 | 0x54 | 0x64 | 0x74 | 0x80 | 0x82 | 0x89 | 0xc2
+                | 0xd4 | 0xe2 | 0xf4 => {
+                    let addr = self.get_operand_address(&opcode.mode);
+                    let _data = self.mem_read(addr);
+                }
+
+                /* Triple NOP - TOP */
+                0x0c | 0x1c | 0x3c | 0x5c | 0x7c | 0xdc | 0xfc => {
+                    let addr = self.get_operand_address(&opcode.mode);
+                    let _data = self.mem_read(addr);
+                }
+
+                /* Combined operations */
+                0x0b | 0x2b => self.anc(&opcode.mode),
+
+                0x87 | 0x97 | 0x8f | 0x83 => self.sax(&opcode.mode),
+
+                0xcb => self.axs(&opcode.mode),
+
+                0xa7 | 0xb7 | 0xaf | 0xbf | 0xa3 | 0xb3 => self.lax(&opcode.mode),
+
+                0x4b => self.alr(&opcode.mode),
+
+                0x6b => self.arr(&opcode.mode),
+
+                /* RMW instructions */
+                0xe7 | 0xf7 | 0xef | 0xff | 0xfb | 0xe3 | 0xf3 => self.isb(&opcode.mode),
+
+                0x27 | 0x37 | 0x2F | 0x3F | 0x3b | 0x33 | 0x23 => self.rla(&opcode.mode),
+
+                0x67 | 0x77 | 0x6f | 0x7f | 0x7b | 0x63 | 0x73 => self.rra(&opcode.mode),
+
+                0x07 | 0x17 | 0x0F | 0x1f | 0x1b | 0x03 | 0x13 => self.slo(&opcode.mode),
+
+                0x47 | 0x57 | 0x4F | 0x5f | 0x5b | 0x43 | 0x53 => self.sre(&opcode.mode),
+
+                0xc7 | 0xd7 | 0xCF | 0xdF | 0xdb | 0xd3 | 0xc3 => self.dcp(&opcode.mode),
+
+                // Duplicate sbc
+                0xeb => self.sbc(&opcode.mode),
 
                 _ => todo!(),
             }

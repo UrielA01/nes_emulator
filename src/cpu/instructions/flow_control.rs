@@ -1,4 +1,7 @@
-use crate::cpu::cpu::{AddressingMode, CPU};
+use crate::cpu::{
+    cpu::{AddressingMode, CPU},
+    flags::StatusFlags,
+};
 
 impl CPU {
     pub fn jmp(&mut self, mode: &AddressingMode) {
@@ -12,15 +15,25 @@ impl CPU {
         let high = (pc >> 8) as u8;
         let low = (pc & 0xff) as u8;
 
-        self.push(low);
         self.push(high);
+        self.push(low);
         self.program_counter = mem_address;
     }
 
     pub fn rts(&mut self) {
-        let high = self.pop() as u16;
         let low = self.pop() as u16;
+        let high = self.pop() as u16;
         self.program_counter = ((high << 8) | (low)).wrapping_add(1);
+    }
+
+    pub fn rti(&mut self) {
+        let stack_value = self.pop();
+        let adjusted_bits = stack_value | 0b00100000;
+        self.status = StatusFlags::from_bits_truncate(adjusted_bits);
+
+        let low = self.pop() as u16;
+        let high = self.pop() as u16;
+        self.program_counter = (high << 8) | low;
     }
 }
 
