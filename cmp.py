@@ -16,8 +16,8 @@ def compare_logs(file1_path, file2_path, max_differences=5):
     diffs_found = 0
 
     for i in range(total_lines):
-        if i == KNOWN_COMMANDS_LINE:
-            break
+        # if i == KNOWN_COMMANDS_LINE:
+        #     break
         your_line = f1_lines[i].rstrip()
         official_line = strip_ppu_info(f2_lines[i])
 
